@@ -1,0 +1,24 @@
+{
+  "name": "Cabin Games",
+  "short_name": "Cabin Games",
+  "description": "Family card game scorekeepers",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060d1f",
+  "theme_color": "#060d1f",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

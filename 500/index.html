@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500 — Cabin Games</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:3px;}
+  button:focus,input:focus{outline:none;}
+
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;}
+
+  /* Buttons */
+  .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-blue{background:linear-gradient(135deg,#1a3f8f,#2454b8);color:#d6e8ff;}
+  .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
+  .btn-sm{padding:6px 14px;font-size:12px;}
+  .btn-md{padding:9px 20px;font-size:13px;}
+  .btn-lg{padding:13px 28px;font-size:16px;}
+
+  /* Tabs */
+  .tab{flex:1;padding:9px 4px;border:none;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3px;background:transparent;color:#6a90c0;font-weight:400;}
+  .tab.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;font-weight:700;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* Toggle buttons (bidder, bid type, etc.) */
+  .tog-btn{flex:1;padding:10px 6px;border:1px solid #1e3a6e;border-radius:8px;cursor:pointer;font-family:'Cinzel',serif;font-size:13px;font-weight:700;background:transparent;color:#6a90c0;transition:all 0.15s;line-height:1.3;}
+  .tog-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;border-color:#7eb8f7;}
+  .tog-btn.active-red{background:linear-gradient(135deg,#e8445a,#c22040);color:#fff;border-color:#e8445a;}
+
+  /* Suit buttons */
+  .suit-btn{flex:1;padding:10px 4px;border:1px solid #1e3a6e;border-radius:8px;cursor:pointer;font-family:'Cinzel',serif;font-size:18px;font-weight:700;background:transparent;color:#6a90c0;transition:all 0.15s;}
+  .suit-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;border-color:#7eb8f7;}
+  .suit-btn.red-suit{color:#6a3a3a;}
+  .suit-btn.red-suit.active{background:linear-gradient(135deg,#e8445a,#c22040);color:#fff;border-color:#e8445a;}
+
+  /* Stepper */
+  .stepper{display:flex;align-items:center;gap:0;border:1px solid #1e3a6e;border-radius:10px;overflow:hidden;height:54px;}
+  .step-btn{width:54px;height:54px;border:none;background:#0e1e3d;color:#7eb8f7;font-size:24px;font-weight:700;cursor:pointer;transition:background 0.15s;flex-shrink:0;}
+  .step-btn:hover{background:#1e3a6e;}
+  .step-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .step-val{flex:1;text-align:center;font-family:'Cinzel',serif;font-size:28px;font-weight:900;color:#d6e8ff;background:#0b1630;}
+
+  .back-btn{background:transparent;border:none;color:#6a90c0;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;letter-spacing:0.5px;transition:color 0.15s;}
+  .back-btn:hover{color:#d6e8ff;}
+
+  .label{color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block;}
+
+  /* Score preview card */
+  .preview-card{border-radius:12px;border:1px solid #1e3a6e;overflow:hidden;margin-top:14px;}
+  .preview-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;}
+  .preview-row+.preview-row{border-top:1px solid #1e3a6e;}
+  .preview-team{color:#d6e8ff;font-size:17px;}
+  .preview-score{font-family:'Cinzel',serif;font-size:22px;font-weight:700;}
+  .score-pos{color:#7eb8f7;}
+  .score-neg{color:#e8445a;}
+  .score-zero{color:#6a90c0;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ SETUP ══════════════════════════════ -->
+<div id="screen-setup" class="screen active" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:420px;">
+    <div style="margin-bottom:12px;">
+      <button class="back-btn" onclick="window.location.href='../'">‹ Cabin Games</button>
+    </div>
+    <div style="text-align:center;margin-bottom:28px;">
+      <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;margin-bottom:8px;">CARD GAME SCORING</p>
+      <h1 style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:64px;font-weight:900;line-height:1;margin-bottom:12px;">500</h1>
+      <div style="display:flex;justify-content:center;gap:12px;font-size:26px;">
+        <span style="color:#d6e8ff;">♠</span>
+        <span style="color:#d6e8ff;">♣</span>
+        <span style="color:#c24040;">♥</span>
+        <span style="color:#c24040;">♦</span>
+      </div>
+    </div>
+    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+      <span class="label">Team Names</span>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 1</span>
+          <input id="t1-name" type="text" value="Team 1" placeholder="Team 1"
+            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 2</span>
+          <input id="t2-name" type="text" value="Team 2" placeholder="Team 2"
+            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+        </div>
+      </div>
+      <button class="btn btn-gold btn-lg" style="width:100%;" onclick="startGame()">Begin Game</button>
+    </div>
+    <p style="text-align:center;color:#6a90c0;font-size:13px;margin-top:16px;opacity:0.7;">First to 500 pts wins · −500 = out the back</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ PLAYING ══════════════════════════════ -->
+<div id="screen-playing" class="screen" style="flex-direction:column;">
+  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="back-btn" onclick="confirmBack()">‹</button>
+      <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:18px;font-weight:700;">500</span>
+    </div>
+    <span id="header-hand" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:13px;font-weight:600;"></span>
+    <button id="read-btn" onclick="readScores()" title="Read scores aloud"
+      style="background:rgba(126,184,247,0.12);border:1px solid #1e3a6e;border-radius:8px;
+        padding:7px 11px;cursor:pointer;font-size:18px;line-height:1;transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(126,184,247,0.22)'"
+      onmouseout="this.style.background='rgba(126,184,247,0.12)'">🔊</button>
+  </div>
+
+  <div style="max-width:700px;margin:0 auto;padding:16px;width:100%;">
+    <div style="display:flex;gap:3px;margin-bottom:14px;background:#0b1630;border-radius:10px;padding:4px;border:1px solid #1e3a6e;">
+      <button class="tab active" id="tab-score" onclick="switchTab('score')">Score Hand</button>
+      <button class="tab" id="tab-board" onclick="switchTab('board')">Scoreboard</button>
+      <button class="tab" id="tab-history" onclick="switchTab('history')">History</button>
+    </div>
+    <div style="background:#0b1630;border-radius:14px;border:1px solid #1e3a6e;padding:20px;">
+      <div id="panel-score" class="panel active"></div>
+      <div id="panel-board" class="panel"></div>
+      <div id="panel-history" class="panel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ DONE ══════════════════════════════ -->
+<div id="screen-done" class="screen" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:440px;text-align:center;">
+    <div id="done-icon" style="font-size:56px;margin-bottom:8px;">🏆</div>
+    <h1 id="done-title" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:28px;font-weight:900;margin-bottom:6px;"></h1>
+    <p id="done-sub" style="color:#6a90c0;font-size:15px;margin-bottom:28px;"></p>
+    <div id="done-scores" style="margin-bottom:28px;text-align:left;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost btn-lg" style="flex:1;" onclick="window.location.href='../'">‹ Home</button>
+      <button class="btn btn-gold btn-lg" style="flex:2;" onclick="newGame()">New Game</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Scoring table ────────────────────────────────────────────────
+const BID_TABLE = {
+  6:  { s:40,  c:60,  d:80,  h:100, nt:120 },
+  7:  { s:140, c:160, d:180, h:200, nt:220 },
+  8:  { s:240, c:260, d:280, h:300, nt:320 },
+  9:  { s:340, c:360, d:380, h:400, nt:420 },
+  10: { s:440, c:460, d:480, h:500, nt:520 },
+};
+
+const SUIT_LABEL = { s:'♠', c:'♣', d:'♦', h:'♥', nt:'NT' };
+const SUIT_IS_RED = { s:false, c:false, d:true, h:true, nt:false };
+const SUITS = ['s','c','d','h','nt'];
+
+// ─── State ───────────────────────────────────────────────────────
+let teams = []; // [{name, score}]
+let hands = []; // [{biddingTeam, bidType, bidTricks, bidSuit, tricksTaken, result:{0:n,1:n}}]
+let gameOver = false;
+let currentTab = 'score';
+
+// current hand entry state
+let H = {};
+function resetH() {
+  H = { biddingTeam:0, bidType:'regular', bidTricks:7, bidSuit:'h', tricksTaken:7 };
+}
+
+// ─── Setup ───────────────────────────────────────────────────────
+function startGame() {
+  const n1 = document.getElementById('t1-name').value.trim() || 'Team 1';
+  const n2 = document.getElementById('t2-name').value.trim() || 'Team 2';
+  teams = [{name:n1, score:0}, {name:n2, score:0}];
+  hands = [];
+  gameOver = false;
+  resetH();
+  switchTab('score');
+  showScreen('playing');
+  render();
+  saveState();
+}
+
+function newGame() { localStorage.removeItem('cabin-500'); showScreen('setup'); }
+
+function confirmBack() {
+  if (hands.length === 0 || confirm('Leave game? Progress will be lost.')) window.location.href = '../';
+}
+
+// ─── Navigation ──────────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function switchTab(name) {
+  currentTab = name;
+  ['score','board','history'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+  });
+  render();
+}
+
+// ─── Score calculation ────────────────────────────────────────────
+function calcBidValue(bidType, bidTricks, bidSuit) {
+  if (bidType === 'noula') return 250;
+  if (bidType === 'open-noula') return 500;
+  return BID_TABLE[bidTricks][bidSuit];
+}
+
+function calcHandResult(h) {
+  const bidVal = calcBidValue(h.bidType, h.bidTricks, h.bidSuit);
+  const nonBidTeam = 1 - h.biddingTeam;
+  const nonBidderTricks = 10 - h.tricksTaken;
+  const nonBidScore = nonBidderTricks * 10;
+
+  let bidScore;
+  if (h.bidType === 'noula' || h.bidType === 'open-noula') {
+    bidScore = h.tricksTaken === 0 ? bidVal : -bidVal;
+  } else {
+    bidScore = h.tricksTaken >= h.bidTricks ? bidVal : -bidVal;
+  }
+
+  const result = {};
+  result[h.biddingTeam] = bidScore;
+  result[nonBidTeam] = nonBidScore;
+  return result;
+}
+
+// preview with current H values
+function previewResult() { return calcHandResult(H); }
+
+function bidDesc(h) {
+  if (h.bidType === 'noula') return 'Noula';
+  if (h.bidType === 'open-noula') return 'Open Noula';
+  return `${h.bidTricks} ${SUIT_LABEL[h.bidSuit]}`;
+}
+
+function madeHand(h) {
+  if (h.bidType === 'noula' || h.bidType === 'open-noula') return h.tricksTaken === 0;
+  return h.tricksTaken >= h.bidTricks;
+}
+
+// ─── Render ──────────────────────────────────────────────────────
+function render() {
+  document.getElementById('header-hand').textContent = `Hand ${hands.length + 1}`;
+  if (currentTab === 'score') renderScore();
+  if (currentTab === 'board') renderBoard();
+  if (currentTab === 'history') renderHistory();
+}
+
+// ─── Score Panel ─────────────────────────────────────────────────
+function renderScore() {
+  const el = document.getElementById('panel-score');
+  const preview = previewResult();
+  const isNoula = H.bidType === 'noula' || H.bidType === 'open-noula';
+  const bidVal = calcBidValue(H.bidType, H.bidTricks, H.bidSuit);
+  const nonBid = 1 - H.biddingTeam;
+
+  const scoreStr = (n) => {
+    if (n > 0) return `<span class="score-pos">+${n}</span>`;
+    if (n < 0) return `<span class="score-neg">${n}</span>`;
+    return `<span class="score-zero">0</span>`;
+  };
+
+  const newScores = [
+    teams[0].score + (preview[0] || 0),
+    teams[1].score + (preview[1] || 0),
+  ];
+
+  el.innerHTML = `
+    <!-- Who bid? -->
+    <span class="label">Who won the bid?</span>
+    <div style="display:flex;gap:6px;margin-bottom:20px;">
+      ${teams.map((t,i) => `
+        <button class="tog-btn ${H.biddingTeam===i?'active':''}" onclick="setBidder(${i})">${t.name}</button>
+      `).join('')}
+    </div>
+
+    <!-- Bid type -->
+    <span class="label">Bid</span>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="tog-btn ${H.bidType==='regular'?'active':''}" style="flex:2;" onclick="setBidType('regular')">Regular</button>
+      <button class="tog-btn ${H.bidType==='noula'?'active':''}" onclick="setBidType('noula')">Noula<br><span style="font-size:10px;opacity:0.8;">250</span></button>
+      <button class="tog-btn ${H.bidType==='open-noula'?'active':''}" onclick="setBidType('open-noula')">Open<br><span style="font-size:10px;opacity:0.8;">500</span></button>
+    </div>
+
+    ${H.bidType === 'regular' ? `
+      <!-- Tricks count -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        ${[6,7,8,9,10].map(n => `
+          <button class="tog-btn ${H.bidTricks===n?'active':''}" onclick="setBidTricks(${n})">${n}</button>
+        `).join('')}
+      </div>
+
+      <!-- Suit -->
+      <div style="display:flex;gap:6px;margin-bottom:4px;">
+        ${SUITS.map(s => `
+          <button class="suit-btn ${SUIT_IS_RED[s]?'red-suit':''} ${H.bidSuit===s?'active':''}
+            ${H.bidSuit===s&&SUIT_IS_RED[s]?'active-red':''}" onclick="setBidSuit('${s}')">
+            ${SUIT_LABEL[s]}
+          </button>
+        `).join('')}
+      </div>
+
+      <div style="text-align:center;padding:8px 0 16px;">
+        <span style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">
+          ${H.bidTricks} ${SUIT_LABEL[H.bidSuit]} = ${bidVal} pts
+        </span>
+      </div>
+    ` : `
+      <div style="padding:8px 0 16px;text-align:center;">
+        <span style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">
+          ${H.bidType === 'noula' ? 'Noula — worth 250 pts' : 'Open Noula — worth 500 pts'}
+        </span>
+      </div>
+    `}
+
+    <!-- Tricks taken by bidding team -->
+    <span class="label">${teams[H.biddingTeam].name} — tricks won${isNoula ? ' (0 = Noula made)' : ''}</span>
+    <div class="stepper" style="margin-bottom:20px;">
+      <button class="step-btn" onclick="setTricks(H.tricksTaken-1)" ${H.tricksTaken===0?'disabled':''}>−</button>
+      <div class="step-val">${H.tricksTaken}</div>
+      <button class="step-btn" onclick="setTricks(H.tricksTaken+1)" ${H.tricksTaken===10?'disabled':''}>+</button>
+    </div>
+
+    <!-- Live preview -->
+    <span class="label">Result preview</span>
+    <div class="preview-card">
+      ${[0,1].map(i => {
+        const delta = preview[i] || 0;
+        const newTotal = teams[i].score + delta;
+        const isBidder = i === H.biddingTeam;
+        const made = madeHand(H);
+        const statusLabel = isBidder
+          ? (made ? '✓ made' : '✗ down')
+          : `${10 - H.tricksTaken} tricks`;
+        return `
+          <div class="preview-row" style="background:${isBidder?'rgba(126,184,247,0.05)':'transparent'}">
+            <div>
+              <div class="preview-team">${teams[i].name}</div>
+              <div style="color:#6a90c0;font-size:12px;font-family:'Cinzel',serif;letter-spacing:0.5px;">${statusLabel}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="preview-score">${scoreStr(delta)}</div>
+              <div style="color:#6a90c0;font-size:12px;font-family:'Cinzel',serif;">→ ${newTotal}</div>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-ghost btn-md" onclick="undoHand()" ${hands.length===0?'disabled':''} style="padding:9px 16px;">Undo</button>
+      <button class="btn btn-gold btn-md" style="flex:1;" onclick="submitHand()">Record Hand ${hands.length+1}</button>
+    </div>
+  `;
+}
+
+// ─── Entry controls ───────────────────────────────────────────────
+function setBidder(i) { H.biddingTeam = i; renderScore(); }
+function setBidType(t) {
+  H.bidType = t;
+  if (t !== 'regular') {
+    H.tricksTaken = 0; // default Noula as made
+  } else {
+    H.tricksTaken = H.bidTricks; // default regular as made
+  }
+  renderScore();
+}
+function setBidTricks(n) {
+  H.bidTricks = n;
+  if (H.tricksTaken < n) H.tricksTaken = n; // nudge to made
+  renderScore();
+}
+function setBidSuit(s) { H.bidSuit = s; renderScore(); }
+function setTricks(n) {
+  H.tricksTaken = Math.max(0, Math.min(10, n));
+  renderScore();
+}
+
+// ─── Hand submit / undo ───────────────────────────────────────────
+function submitHand() {
+  const result = calcHandResult(H);
+  hands.push({ ...H, result });
+  teams[0].score += result[0] || 0;
+  teams[1].score += result[1] || 0;
+
+  // Check game over
+  const winner = checkGameOver();
+  if (winner !== null) {
+    saveState();
+    renderDoneScreen(winner);
+    showScreen('done');
+    return;
+  }
+
+  resetH();
+  switchTab('board');
+  render();
+  saveState();
+}
+
+function undoHand() {
+  if (hands.length === 0) return;
+  const last = hands.pop();
+  teams[0].score -= last.result[0] || 0;
+  teams[1].score -= last.result[1] || 0;
+  resetH();
+  render();
+  saveState();
+}
+
+function checkGameOver() {
+  // Out the back
+  for (let i = 0; i < 2; i++) {
+    if (teams[i].score <= -500) return { loser: i, reason: 'back' };
+  }
+  // Win: bidding team reaches 500 on their own bid (making it)
+  if (hands.length > 0) {
+    const last = hands[hands.length - 1];
+    const made = madeHand(last);
+    if (made && teams[last.biddingTeam].score >= 500) {
+      return { winner: last.biddingTeam, reason: 'win' };
+    }
+    // Non-bidding team reaches 500
+    const nonBid = 1 - last.biddingTeam;
+    if (teams[nonBid].score >= 500) {
+      return { winner: nonBid, reason: 'win' };
+    }
+  }
+  return null;
+}
+
+// ─── Scoreboard Panel ────────────────────────────────────────────
+function renderBoard() {
+  const el = document.getElementById('panel-board');
+  const [t0, t1] = teams;
+
+  const barColor = (score) => {
+    if (score < 0) return '#e8445a';
+    if (score >= 400) return '#4ade80';
+    return 'linear-gradient(90deg,#7eb8f7,#a8d0ff)';
+  };
+  const barWidth = (score) => {
+    const pct = Math.max(0, Math.min(100, score / 500 * 100));
+    return pct;
+  };
+
+  el.innerHTML = `
+    <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:14px;">
+      STANDINGS <span style="opacity:0.6;">· first to 500 wins</span>
+    </p>
+    ${teams.map((t,i) => {
+      const pct = barWidth(t.score);
+      const isLeading = t.score > teams[1-i].score;
+      return `
+        <div style="padding:16px;margin-bottom:10px;border-radius:12px;
+          background:${isLeading?'rgba(126,184,247,0.08)':'#0e1e3d'};
+          border:1px solid ${isLeading?'#7eb8f7':'#1e3a6e'};">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+            <span style="color:#d6e8ff;font-size:20px;">${t.name}</span>
+            <span style="color:${t.score<0?'#e8445a':isLeading?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:30px;font-weight:900;">${t.score}</span>
+          </div>
+          <div style="height:6px;background:#1e3a6e;border-radius:3px;margin-bottom:6px;">
+            ${t.score >= 0
+              ? `<div style="height:100%;width:${pct}%;background:${barColor(t.score)};border-radius:3px;transition:width 0.4s;"></div>`
+              : `<div style="height:100%;width:${Math.min(100,Math.abs(t.score)/500*100)}%;background:#e8445a;border-radius:3px;margin-left:auto;transition:width 0.4s;"></div>`
+            }
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;">${t.score < 0 ? 'OUT THE BACK AT −500' : `${Math.round(pct)}% TO WIN`}</span>
+            <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;">${hands.length} hand${hands.length!==1?'s':''}</span>
+          </div>
+        </div>`;
+    }).join('')}
+    <div style="margin-top:14px;">
+      <button class="btn btn-gold btn-md" style="width:100%;" onclick="switchTab('score')">Score Next Hand</button>
+    </div>
+  `;
+}
+
+// ─── History Panel ────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('panel-history');
+  if (hands.length === 0) {
+    el.innerHTML = `<p style="color:#6a90c0;text-align:center;padding:24px 0;font-size:16px;">No hands played yet.</p>`;
+    return;
+  }
+
+  // Running totals per hand
+  let running = [0, 0];
+
+  el.innerHTML = `<div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr>
+        <th style="padding:7px 8px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;white-space:nowrap;">#</th>
+        <th style="padding:7px 8px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;">BID</th>
+        <th style="padding:7px 8px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;">BIDDER</th>
+        <th style="padding:7px 8px;text-align:center;color:#d6e8ff;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;">${teams[0].name.length>8?teams[0].name.slice(0,7)+'…':teams[0].name}</th>
+        <th style="padding:7px 8px;text-align:center;color:#d6e8ff;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;">${teams[1].name.length>8?teams[1].name.slice(0,7)+'…':teams[1].name}</th>
+      </tr></thead>
+      <tbody>
+        ${hands.map((h,idx) => {
+          running[0] += h.result[0] || 0;
+          running[1] += h.result[1] || 0;
+          const made = madeHand(h);
+          const s0 = h.result[0] || 0;
+          const s1 = h.result[1] || 0;
+          const scoreCell = (s, isBidder) => {
+            const color = s > 0 ? '#7eb8f7' : s < 0 ? '#e8445a' : '#6a90c0';
+            const prefix = s > 0 ? '+' : '';
+            return `<td style="padding:7px 8px;text-align:center;color:${color};border-bottom:1px solid rgba(30,58,110,0.4);font-family:'Cinzel',serif;font-weight:${isBidder?'700':'400'};">${prefix}${s}</td>`;
+          };
+          return `<tr>
+            <td style="padding:7px 8px;color:#6a90c0;border-bottom:1px solid rgba(30,58,110,0.4);font-family:'Cinzel',serif;font-size:11px;">${idx+1}</td>
+            <td style="padding:7px 8px;color:#d6e8ff;border-bottom:1px solid rgba(30,58,110,0.4);white-space:nowrap;">
+              <span style="font-family:'Cinzel',serif;">${bidDesc(h)}</span>
+              <span style="color:${made?'#4ade80':'#e8445a'};font-size:11px;margin-left:4px;">${made?'✓':'✗'}</span>
+            </td>
+            <td style="padding:7px 8px;color:#6a90c0;border-bottom:1px solid rgba(30,58,110,0.4);font-size:12px;white-space:nowrap;">${teams[h.biddingTeam].name.length>8?teams[h.biddingTeam].name.slice(0,7)+'…':teams[h.biddingTeam].name}</td>
+            ${scoreCell(s0, h.biddingTeam===0)}
+            ${scoreCell(s1, h.biddingTeam===1)}
+          </tr>`;
+        }).join('')}
+        <tr style="background:rgba(126,184,247,0.08);">
+          <td colspan="3" style="padding:10px 8px;color:#7eb8f7;font-family:'Cinzel',serif;font-size:11px;font-weight:700;">TOTAL</td>
+          ${[0,1].map(i => `<td style="padding:10px 8px;text-align:center;color:#7eb8f7;font-family:'Cinzel',serif;font-weight:700;font-size:18px;">${teams[i].score}</td>`).join('')}
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ─── Done Screen ──────────────────────────────────────────────────
+function renderDoneScreen(outcome) {
+  const podiumColors = ['linear-gradient(135deg,#7eb8f7,#a8d0ff)','#4a7ab5'];
+  const borderColors = ['#7eb8f7','#1e3a6e'];
+
+  if (outcome.reason === 'back') {
+    const loser = outcome.loser;
+    const winner = 1 - loser;
+    document.getElementById('done-icon').textContent = '💀';
+    document.getElementById('done-title').textContent = `${teams[loser].name} went out the back!`;
+    document.getElementById('done-sub').textContent = `${teams[winner].name} wins by default`;
+  } else {
+    const w = outcome.winner;
+    document.getElementById('done-icon').textContent = '🏆';
+    document.getElementById('done-title').textContent = `${teams[w].name} wins!`;
+    document.getElementById('done-sub').textContent = `First to reach 500 points`;
+  }
+
+  const sorted = [...teams.map((t,i)=>({...t,idx:i}))].sort((a,b) => b.score-a.score);
+  document.getElementById('done-scores').innerHTML = sorted.map((t,rank) => `
+    <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
+      background:${rank===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${borderColors[rank]};">
+      <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        background:${podiumColors[rank]};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${rank+1}</div>
+      <div style="flex:1;color:#d6e8ff;font-size:20px;">${t.name}</div>
+      <div style="color:${rank===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:26px;font-weight:700;">${t.score}</div>
+    </div>`).join('');
+}
+
+// ─── Speech ───────────────────────────────────────────────────────
+function readScores() {
+  window.speechSynthesis.cancel();
+  const sorted = [...teams.map((t,i)=>({...t,i}))].sort((a,b)=>b.score-a.score);
+  const lines = ['Current scores.'];
+  sorted.slice().reverse().forEach((t,idx) => {
+    const pos = sorted.length - idx;
+    const suffix = pos===1?'st':pos===2?'nd':pos===3?'rd':'th';
+    lines.push(`In ${pos}${suffix} place, ${t.name}, with ${t.score} points.`);
+  });
+  if (hands.length > 0) {
+    const last = hands[hands.length-1];
+    lines.push(`Last hand: ${teams[last.biddingTeam].name} bid ${bidDesc(last)}, ${madeHand(last)?'made it':'went down'}.`);
+  }
+
+  const btn = document.getElementById('read-btn');
+  btn.textContent = '⏹';
+  btn.onclick = () => { window.speechSynthesis.cancel(); btn.textContent='🔊'; btn.onclick=readScores; };
+
+  let i = 0;
+  function speak() {
+    if (i >= lines.length) { btn.textContent='🔊'; btn.onclick=readScores; return; }
+    const u = new SpeechSynthesisUtterance(lines[i++]);
+    u.rate = 0.95;
+    u.onend = () => setTimeout(speak, 180);
+    u.onerror = () => { btn.textContent='🔊'; btn.onclick=readScores; };
+    window.speechSynthesis.speak(u);
+  }
+  speak();
+}
+
+function saveState(){
+  try{
+    if(!teams.length){localStorage.removeItem('cabin-500');return;}
+    localStorage.setItem('cabin-500',JSON.stringify({teams,hands}));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('cabin-500');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s.teams||!s.teams.length)return;
+    teams=s.teams;hands=s.hands||[];
+    gameOver=false;resetH();
+    const winner=checkGameOver();
+    if(winner!==null){renderDoneScreen(winner);showScreen('done');}
+    else{showScreen('playing');switchTab('board');render();}
+  }catch(e){}
+}
+loadState();
+</script>
+</body>
+</html>

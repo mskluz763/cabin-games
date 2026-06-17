@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Five Crowns — Cabin Games</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;}
+  input[type=number]{-moz-appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:3px;}
+  input:focus,button:focus{outline:none;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;}
+  .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-blue{background:linear-gradient(135deg,#1a3f8f,#2454b8);color:#d6e8ff;}
+  .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
+  .btn-sm{padding:6px 14px;font-size:12px;}
+  .btn-md{padding:9px 20px;font-size:13px;}
+  .btn-lg{padding:13px 28px;font-size:16px;}
+  .tab{flex:1;padding:9px 4px;border:none;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3px;background:transparent;color:#6a90c0;font-weight:400;}
+  .tab.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;font-weight:700;}
+  .panel-content{display:none;}
+  .panel-content.active{display:block;}
+  .player-btn{flex:1;height:38px;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;font-size:14px;border:1px solid #1e3a6e;background:transparent;color:#6a90c0;transition:all 0.15s;}
+  .player-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;border-color:#7eb8f7;}
+  .back-btn{background:transparent;border:none;color:#6a90c0;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.15s;letter-spacing:0.5px;}
+  .back-btn:hover{color:#d6e8ff;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ SETUP -->
+<div id="screen-setup" class="screen active" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:460px;">
+    <div style="margin-bottom:12px;">
+      <button class="back-btn" onclick="window.location.href='../'">‹ Cabin Games</button>
+    </div>
+    <div style="text-align:center;margin-bottom:28px;">
+      <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;margin-bottom:8px;">CARD GAME SCORING</p>
+      <h1 style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:46px;font-weight:900;line-height:1;margin-bottom:12px;">5 Crowns</h1>
+      <div style="display:flex;justify-content:center;gap:12px;font-size:26px;">
+        <span style="color:#d6e8ff;">♠</span>
+        <span style="color:#d6e8ff;">♣</span>
+        <span style="color:#c24040;">♥</span>
+        <span style="color:#c24040;">♦</span>
+        <span style="color:#a8d0ff;text-shadow:0 0 8px #a8d0ff;">★</span>
+      </div>
+    </div>
+    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+      <div style="margin-bottom:20px;">
+        <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:10px;">NUMBER OF PLAYERS</p>
+        <div style="display:flex;gap:6px;" id="player-count-btns">
+          <button class="player-btn" data-n="2" onclick="setNumPlayers(2)">2</button>
+          <button class="player-btn" data-n="3" onclick="setNumPlayers(3)">3</button>
+          <button class="player-btn" data-n="4" onclick="setNumPlayers(4)">4</button>
+          <button class="player-btn active" data-n="5" onclick="setNumPlayers(5)">5</button>
+          <button class="player-btn" data-n="6" onclick="setNumPlayers(6)">6</button>
+          <button class="player-btn" data-n="7" onclick="setNumPlayers(7)">7</button>
+          <button class="player-btn" data-n="8" onclick="setNumPlayers(8)">8</button>
+        </div>
+      </div>
+      <div style="margin-bottom:24px;">
+        <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:10px;">PLAYER NAMES</p>
+        <div id="name-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+      </div>
+      <button class="btn btn-gold btn-lg" style="width:100%;" onclick="startTournament()">Begin Tournament</button>
+    </div>
+    <p style="text-align:center;color:#6a90c0;font-size:13px;margin-top:16px;opacity:0.7;">Lowest cumulative score across all games wins</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PLAYING -->
+<div id="screen-playing" class="screen" style="flex-direction:column;">
+  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="back-btn" onclick="confirmBack()">‹</button>
+      <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:18px;font-weight:700;">5 Crowns</span>
+    </div>
+    <div style="text-align:center;">
+      <span id="header-status" style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:13px;font-weight:600;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="text-align:right;">
+        <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">COMPLETED</p>
+        <p id="header-games" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:13px;"></p>
+      </div>
+      <button id="read-btn" onclick="readScores()" title="Read scores aloud"
+        style="background:rgba(126,184,247,0.12);border:1px solid #1e3a6e;border-radius:8px;
+          padding:7px 11px;cursor:pointer;font-size:18px;line-height:1;transition:background 0.15s;"
+        onmouseover="this.style.background='rgba(126,184,247,0.22)'"
+        onmouseout="this.style.background='rgba(126,184,247,0.12)'">🔊</button>
+    </div>
+  </div>
+  <div style="max-width:700px;margin:0 auto;padding:16px;width:100%;">
+    <div style="display:flex;gap:3px;margin-bottom:14px;background:#0b1630;border-radius:10px;padding:4px;border:1px solid #1e3a6e;">
+      <button class="tab active" id="tab-entry" onclick="switchTab('entry')">Entry</button>
+      <button class="tab" id="tab-game" onclick="switchTab('game')">This Game</button>
+      <button class="tab" id="tab-tournament" onclick="switchTab('tournament')">Tournament</button>
+    </div>
+    <div style="background:#0b1630;border-radius:14px;border:1px solid #1e3a6e;padding:20px;">
+      <div id="panel-entry" class="panel-content active"></div>
+      <div id="panel-game" class="panel-content"></div>
+      <div id="panel-tournament" class="panel-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ DONE -->
+<div id="screen-done" class="screen" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:480px;text-align:center;">
+    <div style="font-size:56px;margin-bottom:8px;">🏆</div>
+    <h1 style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:28px;font-weight:900;margin-bottom:6px;">Tournament Complete</h1>
+    <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;margin-bottom:4px;">FINAL STANDINGS</p>
+    <p id="done-subtitle" style="color:#6a90c0;font-size:15px;margin-bottom:28px;"></p>
+    <div id="done-standings" style="margin-bottom:28px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost btn-lg" style="flex:1;" onclick="window.location.href='../'">‹ Home</button>
+      <button class="btn btn-gold btn-lg" style="flex:2;" onclick="newTournament()">New Tournament</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROUNDS = [
+  {n:1,cards:3,wild:"3s"},{n:2,cards:4,wild:"4s"},{n:3,cards:5,wild:"5s"},
+  {n:4,cards:6,wild:"6s"},{n:5,cards:7,wild:"7s"},{n:6,cards:8,wild:"8s"},
+  {n:7,cards:9,wild:"9s"},{n:8,cards:10,wild:"10s"},{n:9,cards:11,wild:"Jacks"},
+  {n:10,cards:12,wild:"Queens"},{n:11,cards:13,wild:"Kings"}
+];
+
+let _uid=0, numPlayers=5, players=[], games=[], cg=null, roundInputs={}, isDone=false, currentTab='entry', tournamentDone=false;
+const defaultNames=["Player 1","Player 2","Player 3","Player 4","Player 5","Player 6","Player 7","Player 8"];
+
+function uid(){return ++_uid;}
+function gSum(g,pid){return (g?.scores[pid]||[]).reduce((a,b)=>a+b,0);}
+function tSum(pid){
+  const base=games.reduce((s,g)=>s+gSum(g,pid),0);
+  return base+(!isDone&&cg?gSum(cg,pid):0);
+}
+function ranked(ps){return [...ps].sort((a,b)=>tSum(a.id)-tSum(b.id));}
+
+function setNumPlayers(n){
+  numPlayers=n;
+  document.querySelectorAll('.player-btn').forEach(b=>{
+    b.classList.toggle('active',parseInt(b.dataset.n)===n);
+  });
+  renderNameInputs();
+}
+
+function renderNameInputs(){
+  const el=document.getElementById('name-inputs');
+  const existing=el.querySelectorAll('input');
+  const vals=Array.from(existing).map(i=>i.value);
+  el.innerHTML='';
+  for(let i=0;i<numPlayers;i++){
+    const inp=document.createElement('input');
+    inp.value=vals[i]!==undefined?vals[i]:defaultNames[i];
+    inp.placeholder=defaultNames[i];
+    inp.style.cssText=`background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;width:100%;`;
+    el.appendChild(inp);
+  }
+}
+
+function getNames(){
+  return Array.from(document.querySelectorAll('#name-inputs input')).map((el,i)=>el.value.trim()||defaultNames[i]);
+}
+
+function startTournament(){
+  const ns=getNames();
+  players=ns.slice(0,numPlayers).map((n,i)=>({id:uid(),name:n}));
+  games=[]; beginGame(); showScreen('playing');
+}
+
+function beginGame(){
+  const scores=Object.fromEntries(players.map(p=>[p.id,[]]));
+  cg={id:uid(),scores,round:0};
+  roundInputs=Object.fromEntries(players.map(p=>[p.id,'']));
+  isDone=false; switchTab('entry'); render(); saveState();
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function switchTab(name){
+  currentTab=name;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.panel-content').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  render();
+}
+
+function confirmBack(){
+  if(confirm('Leave game? Progress will be lost.')) window.location.href='../';
+}
+
+function recordRound(){
+  if(!cg||isDone)return;
+  players.forEach(p=>{
+    const val=Number(document.getElementById('ri-'+p.id)?.value)||0;
+    cg.scores[p.id].push(val);
+    roundInputs[p.id]='';
+  });
+  if(cg.round===10){
+    games.push({...cg,round:11});
+    cg={...cg,round:11};
+    isDone=true; render(); saveState();
+  } else {
+    cg.round++;
+    render(); saveState();
+    setTimeout(()=>document.querySelector('[id^="ri-"]')?.focus(),50);
+  }
+}
+
+function undoRound(){
+  if(!cg||cg.round===0||isDone)return;
+  players.forEach(p=>{
+    const last=cg.scores[p.id].pop();
+    roundInputs[p.id]=last!==undefined?String(last):'';
+  });
+  cg.round--;
+  render(); saveState();
+  setTimeout(()=>document.querySelector('[id^="ri-"]')?.focus(),50);
+}
+
+function nextGame(){beginGame();}
+function endTournament(){tournamentDone=true;renderDoneScreen();showScreen('done');saveState();}
+function newTournament(){players=[];games=[];cg=null;isDone=false;_uid=0;tournamentDone=false;saveState();showScreen('setup');}
+
+function renderDoneScreen(){
+  const r=ranked(players);
+  document.getElementById('done-subtitle').textContent=`${games.length} game${games.length!==1?'s':''} played · lowest score wins`;
+  const podiumColors=['linear-gradient(135deg,#7eb8f7,#a8d0ff)','#4a7ab5','#2a5a8f'];
+  const borderColors=['#7eb8f7','#4a7ab5','#2a5a8f','#1e3a6e'];
+  document.getElementById('done-standings').innerHTML=r.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
+      background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${borderColors[Math.min(i,3)]};">
+      <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        background:${podiumColors[i]||'#1e3a6e'};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">
+        ${i+1}
+      </div>
+      <div style="flex:1;text-align:left;">
+        <div style="color:#d6e8ff;font-size:20px;">${p.name}</div>
+        <div style="color:#6a90c0;font-size:13px;">${games.length} games played</div>
+      </div>
+      <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:26px;font-weight:700;">${tSum(p.id)}</div>
+    </div>`).join('');
+}
+
+function render(){
+  if(!cg)return;
+  const gameNum=isDone?games.length:games.length+1;
+  const roundNum=cg.round+1;
+
+  document.getElementById('header-status').style.color=isDone?'#7eb8f7':'#d6e8ff';
+  document.getElementById('header-status').textContent=isDone?`Game ${gameNum} Complete`:`Game ${gameNum}  ·  Round ${Math.min(roundNum,11)} / 11`;
+  document.getElementById('header-games').textContent=`${games.length} game${games.length!==1?'s':''}`;
+  document.getElementById('tab-entry').textContent=isDone?'Results':'Entry';
+
+  if(currentTab==='entry') renderEntry();
+  if(currentTab==='game') renderGameTab();
+  if(currentTab==='tournament') renderTournamentTab();
+}
+
+function renderEntry(){
+  const el=document.getElementById('panel-entry');
+  if(isDone){
+    const lastGame=games[games.length-1];
+    const sorted=[...players].sort((a,b)=>gSum(lastGame,a.id)-gSum(lastGame,b.id));
+    el.innerHTML=`
+      <div style="text-align:center;margin-bottom:22px;">
+        <div style="font-size:38px;margin-bottom:6px;">🎉</div>
+        <h2 style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:21px;margin-bottom:4px;">Game ${games.length} Complete!</h2>
+        <p style="color:#6a90c0;font-size:15px;">${sorted[0].name} wins this game with ${gSum(lastGame,sorted[0].id)} points</p>
+      </div>
+      ${sorted.map((p,i)=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;margin-bottom:8px;border-radius:10px;
+          background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+            background:${i===0?'linear-gradient(135deg,#7eb8f7,#a8d0ff)':'#1e3a6e'};
+            color:${i===0?'#060d1f':'#6a90c0'};font-family:'Cinzel',serif;font-weight:900;font-size:13px;">${i+1}</div>
+          <div style="flex:1;color:#d6e8ff;font-size:18px;">${p.name}</div>
+          <div style="text-align:right;">
+            <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:21px;font-weight:700;">${gSum(lastGame,p.id)}</div>
+            <div style="color:#6a90c0;font-size:12px;">Tournament total: ${tSum(p.id)}</div>
+          </div>
+        </div>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:20px;">
+        <button class="btn btn-blue btn-md" style="flex:1;" onclick="nextGame()">Next Game</button>
+        <button class="btn btn-gold btn-md" style="flex:1;" onclick="endTournament()">End Tournament</button>
+      </div>`;
+    return;
+  }
+
+  const r=ROUNDS[cg.round];
+  el.innerHTML=`
+    <div style="background:rgba(126,184,247,0.12);border:1px solid #7eb8f7;border-radius:10px;padding:12px 18px;margin-bottom:20px;
+      display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <p style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">Round ${cg.round+1} of 11</p>
+        <p style="color:#d6e8ff;font-size:15px;opacity:0.85;">${r.cards} cards dealt</p>
+      </div>
+      <div style="text-align:right;">
+        <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">WILD CARD</p>
+        <p style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:28px;font-weight:900;line-height:1;">${r.wild}</p>
+      </div>
+    </div>
+    <div id="score-inputs" style="margin-bottom:20px;"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gold btn-md" style="flex:1;" onclick="recordRound()">
+        ${cg.round===10?'Complete Game':'Record Round '+(cg.round+1)}
+      </button>
+      <button class="btn btn-ghost btn-md" style="padding:9px 16px;" onclick="undoRound()" ${cg.round===0?'disabled':''}>Undo</button>
+    </div>`;
+
+  const inp=document.getElementById('score-inputs');
+  inp.innerHTML=players.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:11px 0;
+      ${i<players.length-1?'border-bottom:1px solid rgba(30,58,110,0.45);':''}">
+      <div style="flex:1;">
+        <div style="color:#d6e8ff;font-size:19px;line-height:1.2;">${p.name}</div>
+        <div style="color:#6a90c0;font-size:13px;">
+          Game total: <span style="color:#7eb8f7;">${gSum(cg,p.id)}</span>
+          <span style="margin:0 8px;opacity:0.4;">·</span>
+          Tournament: <span style="color:#a8d0ff;">${tSum(p.id)}</span>
+        </div>
+      </div>
+      <input type="number" id="ri-${p.id}" min="0" value="${roundInputs[p.id]||''}" placeholder="0"
+        oninput="roundInputs[${p.id}]=this.value"
+        onkeydown="if(event.key==='Enter'){document.querySelectorAll('[id^=ri-]')[${i+1}]?.focus()||recordRound()}"
+        style="width:90px;height:52px;text-align:center;font-size:24px;font-weight:700;
+          background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;color:#d6e8ff;font-family:'Cinzel',serif;">
+    </div>`).join('');
+}
+
+function renderGameTab(){
+  const gameToShow=isDone?games[games.length-1]:cg;
+  const el=document.getElementById('panel-game');
+  if(!gameToShow||gameToShow.round===0){
+    el.innerHTML=`<p style="color:#6a90c0;text-align:center;padding:24px 0;font-size:16px;">No rounds played yet.</p>`;
+    return;
+  }
+  const nameCell=n=>n.length>8?n.slice(0,7)+'…':n;
+  el.innerHTML=`<div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:15px;font-family:'Crimson Pro',serif;">
+      <thead><tr>
+        <th style="padding:7px 10px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;white-space:nowrap;min-width:80px;">ROUND</th>
+        ${players.map(p=>`<th style="padding:7px 8px;text-align:center;color:#d6e8ff;font-family:'Cinzel',serif;font-size:11px;border-bottom:1px solid #1e3a6e;">${nameCell(p.name)}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${ROUNDS.map((r,idx)=>{
+          const played=idx<gameToShow.round;
+          const isCur=!isDone&&idx===gameToShow.round;
+          return `<tr style="opacity:${played||isDone?1:isCur?1:0.28};background:${isCur?'rgba(126,184,247,0.07)':'transparent'}">
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(30,58,110,0.45);white-space:nowrap;">
+              <span style="color:${isCur?'#7eb8f7':'#6a90c0'};font-family:'Cinzel',serif;font-size:11px;">R${r.n}</span>
+              <span style="color:rgba(30,58,110,0.45);font-size:11px;margin-left:5px;">${r.wild}</span>
+              ${isCur?'<span style="background:rgba(126,184,247,0.12);color:#7eb8f7;font-size:11px;font-family:\'Cinzel\',serif;letter-spacing:1px;padding:3px 10px;border-radius:20px;border:1px solid #7eb8f7;margin-left:4px;">now</span>':''}
+            </td>
+            ${players.map(p=>`<td style="padding:6px 8px;text-align:center;color:#d6e8ff;border-bottom:1px solid rgba(30,58,110,0.45);">${played?gameToShow.scores[p.id][idx]:'—'}</td>`).join('')}
+          </tr>`;
+        }).join('')}
+        <tr style="background:rgba(126,184,247,0.12);">
+          <td style="padding:10px;color:#7eb8f7;font-family:'Cinzel',serif;font-size:11px;font-weight:700;">GAME TOTAL</td>
+          ${players.map(p=>`<td style="padding:10px 8px;text-align:center;color:#7eb8f7;font-family:'Cinzel',serif;font-weight:700;font-size:18px;">${gSum(gameToShow,p.id)}</td>`).join('')}
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderTournamentTab(){
+  const el=document.getElementById('panel-tournament');
+  const r=ranked(players);
+  const podiumColors=['linear-gradient(135deg,#7eb8f7,#a8d0ff)','#4a7ab5','#2a5a8f'];
+  const allG=[...games,...(!isDone&&cg&&cg.round>0?[cg]:[])];
+  el.innerHTML=`
+    <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:12px;">
+      STANDINGS <span style="opacity:0.6;">· lowest score wins</span>
+    </p>
+    ${r.map((p,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;margin-bottom:8px;border-radius:10px;
+        background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+          background:${podiumColors[i]||'#1e3a6e'};color:${i<3?'#060d1f':'#6a90c0'};font-family:'Cinzel',serif;font-weight:900;font-size:13px;">${i+1}</div>
+        <div style="flex:1;color:#d6e8ff;font-size:18px;">${p.name}</div>
+        <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${tSum(p.id)}</div>
+      </div>`).join('')}
+    ${allG.length>0?`
+      <div style="margin-top:24px;overflow-x:auto;">
+        <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:10px;">GAME BREAKDOWN</p>
+        <table style="width:100%;border-collapse:collapse;font-size:15px;">
+          <thead><tr>
+            <th style="padding:7px 10px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;border-bottom:1px solid #1e3a6e;">PLAYER</th>
+            ${allG.map((_,i)=>`<th style="padding:7px 8px;text-align:center;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;border-bottom:1px solid #1e3a6e;">G${i+1}</th>`).join('')}
+            <th style="padding:7px 8px;text-align:center;color:#7eb8f7;font-family:'Cinzel',serif;font-size:10px;border-bottom:1px solid #1e3a6e;">TOTAL</th>
+          </tr></thead>
+          <tbody>
+            ${players.map(p=>`
+              <tr>
+                <td style="padding:8px 10px;color:#d6e8ff;border-bottom:1px solid rgba(30,58,110,0.45);">${p.name.length>12?p.name.slice(0,11)+'…':p.name}</td>
+                ${allG.map(g=>`<td style="padding:8px;text-align:center;color:#d6e8ff;border-bottom:1px solid rgba(30,58,110,0.45);">${gSum(g,p.id)}</td>`).join('')}
+                <td style="padding:8px;text-align:center;color:#7eb8f7;font-family:'Cinzel',serif;font-weight:700;border-bottom:1px solid rgba(30,58,110,0.45);">${tSum(p.id)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`:`<p style="color:#6a90c0;text-align:center;padding:16px 0;font-size:15px;opacity:0.7;">Complete some rounds to see the breakdown here.</p>`}`;
+}
+
+function readScores(){
+  if(!cg||!players.length)return;
+  window.speechSynthesis.cancel();
+
+  const gameToShow=isDone?games[games.length-1]:cg;
+  const gameNum=isDone?games.length:games.length+1;
+  const lines=[];
+
+  if(gameToShow&&gameToShow.round>0){
+    const gameLabel=isDone?`Game ${gameNum} final scores`:`Game ${gameNum} scores after round ${gameToShow.round}`;
+    lines.push(gameLabel);
+    const byGame=[...players].sort((a,b)=>gSum(gameToShow,b.id)-gSum(gameToShow,a.id));
+    byGame.forEach((p,i)=>{
+      const pos=byGame.length-i;
+      const suffix=pos===1?'st':pos===2?'nd':pos===3?'rd':'th';
+      lines.push(`In ${pos}${suffix} place, ${p.name}, with ${gSum(gameToShow,p.id)} points.`);
+    });
+  } else {
+    lines.push(`Game ${gameNum} has not started yet.`);
+  }
+
+  const allCompleted=[...games,...(!isDone&&cg&&cg.round>0?[cg]:[])];
+  if(allCompleted.length>0){
+    lines.push('Tournament standings.');
+    const byTournament=ranked(players).slice().reverse();
+    byTournament.forEach((p,i)=>{
+      const pos=byTournament.length-i;
+      const suffix=pos===1?'st':pos===2?'nd':pos===3?'rd':'th';
+      lines.push(`In ${pos}${suffix} place, ${p.name}, with ${tSum(p.id)} total points.`);
+    });
+  }
+
+  const btn=document.getElementById('read-btn');
+  btn.textContent='⏹';
+  btn.onclick=()=>{window.speechSynthesis.cancel();btn.textContent='🔊';btn.onclick=readScores;};
+
+  let i=0;
+  function speakNext(){
+    if(i>=lines.length){btn.textContent='🔊';btn.onclick=readScores;return;}
+    const utt=new SpeechSynthesisUtterance(lines[i++]);
+    utt.rate=0.95; utt.pitch=1.0;
+    utt.onend=()=>setTimeout(speakNext,180);
+    utt.onerror=()=>{btn.textContent='🔊';btn.onclick=readScores;};
+    window.speechSynthesis.speak(utt);
+  }
+  speakNext();
+}
+
+function saveState(){
+  try{
+    if(!players.length){localStorage.removeItem('cabin-five-crowns');return;}
+    localStorage.setItem('cabin-five-crowns',JSON.stringify({_uid,numPlayers,players,games,cg,isDone,roundInputs,tournamentDone}));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('cabin-five-crowns');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s.players||!s.players.length)return;
+    _uid=s._uid||0;numPlayers=s.numPlayers||5;players=s.players;games=s.games||[];
+    cg=s.cg||null;isDone=s.isDone||false;roundInputs=s.roundInputs||{};tournamentDone=s.tournamentDone||false;
+    if(tournamentDone){renderDoneScreen();showScreen('done');}
+    else{showScreen('playing');switchTab('entry');}
+  }catch(e){}
+}
+renderNameInputs();
+loadState();
+</script>
+</body>
+</html>

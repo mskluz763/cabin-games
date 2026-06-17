@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cabin Games</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:0 16px 48px;}
+
+  .hero{text-align:center;padding:56px 0 36px;}
+  .suits{font-size:22px;letter-spacing:14px;margin-bottom:18px;opacity:0.7;}
+  .suits .r{color:#c24040;}
+  h1{font-family:'Cinzel',serif;font-size:clamp(38px,10vw,58px);font-weight:900;color:#d6e8ff;line-height:1;margin-bottom:10px;}
+  .tagline{color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;}
+
+  .games{width:100%;max-width:460px;display:flex;flex-direction:column;gap:12px;}
+
+  a.game-card{
+    display:flex;align-items:center;gap:18px;
+    background:#0b1630;border:1px solid #1e3a6e;border-radius:16px;
+    padding:20px 22px;text-decoration:none;color:inherit;
+    transition:border-color 0.15s,background 0.15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  a.game-card:hover,a.game-card:active{background:#0e1e3d;border-color:#3a6aae;}
+
+  .game-icon{font-size:36px;line-height:1;width:44px;text-align:center;flex-shrink:0;}
+  .game-info{flex:1;}
+  .game-info h2{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#d6e8ff;margin-bottom:4px;}
+  .game-info p{font-size:14px;color:#6a90c0;line-height:1.4;}
+  .game-arrow{font-size:26px;color:#1e3a6e;font-weight:300;flex-shrink:0;}
+
+  .divider{width:100%;max-width:460px;border:none;border-top:1px solid #1e3a6e;margin:8px 0;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="suits"><span>♠</span> <span>♣</span> <span class="r">♥</span> <span class="r">♦</span></div>
+  <h1>Cabin Games</h1>
+  <p class="tagline">Family card game scorekeepers</p>
+</div>
+
+<div class="games">
+  <a href="five-crowns/" class="game-card">
+    <div class="game-icon" style="color:#a8d0ff;">★</div>
+    <div class="game-info">
+      <h2>Five Crowns</h2>
+      <p>11 rounds &middot; 2–8 players &middot; Lowest score wins</p>
+    </div>
+    <div class="game-arrow">›</div>
+  </a>
+
+  <a href="hearts/" class="game-card">
+    <div class="game-icon" style="color:#e8445a;">♥</div>
+    <div class="game-info">
+      <h2>Hearts</h2>
+      <p>Shoot the moon &middot; 2–6 players &middot; Avoid points</p>
+    </div>
+    <div class="game-arrow">›</div>
+  </a>
+
+  <a href="canasta/" class="game-card">
+    <div class="game-icon" style="color:#7eb8f7;">♠</div>
+    <div class="game-info">
+      <h2>MN Canasta</h2>
+      <p>First to 20,000 &middot; 2–4 players or partners</p>
+    </div>
+    <div class="game-arrow">›</div>
+  </a>
+
+  <a href="euchre/" class="game-card">
+    <div class="game-icon" style="color:#a8d0ff;">♣</div>
+    <div class="game-info">
+      <h2>Euchre</h2>
+      <p>Games won &middot; 2 partnerships &middot; First to X</p>
+    </div>
+    <div class="game-arrow">›</div>
+  </a>
+
+  <a href="500/" class="game-card">
+    <div class="game-icon" style="color:#a8d0ff;font-family:'Cinzel',serif;font-size:28px;font-weight:900;">500</div>
+    <div class="game-info">
+      <h2>500</h2>
+      <p>First to 500 pts &middot; 2 partnerships &middot; Noula</p>
+    </div>
+    <div class="game-arrow">›</div>
+  </a>
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

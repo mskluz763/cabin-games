@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MN Canasta — Cabin Games</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;}
+  input[type=number]{-moz-appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:3px;}
+  input:focus,button:focus{outline:none;}
+
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;}
+
+  .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-blue{background:linear-gradient(135deg,#1a3f8f,#2454b8);color:#d6e8ff;}
+  .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
+  .btn-red{background:#e8445a;color:#fff;}
+  .btn-sm{padding:6px 14px;font-size:12px;}
+  .btn-md{padding:9px 20px;font-size:13px;}
+  .btn-lg{padding:13px 28px;font-size:16px;}
+
+  .tab{flex:1;padding:9px 4px;border:none;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3px;background:transparent;color:#6a90c0;font-weight:400;}
+  .tab.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;font-weight:700;}
+  .panel-content{display:none;}
+  .panel-content.active{display:block;}
+
+  .player-btn{flex:1;min-width:0;height:38px;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;font-size:13px;border:1px solid #1e3a6e;background:transparent;color:#6a90c0;transition:all 0.15s;padding:0 4px;}
+  .player-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;border-color:#7eb8f7;}
+
+  .back-btn{background:transparent;border:none;color:#6a90c0;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.15s;letter-spacing:0.5px;}
+  .back-btn:hover{color:#d6e8ff;}
+
+  /* field rows */
+  .field-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(30,58,110,0.35);}
+  .field-row:last-child{border-bottom:none;}
+  .field-label{flex:1;color:#d6e8ff;font-size:16px;line-height:1.3;}
+  .field-sub{display:block;font-size:12px;color:#6a90c0;margin-top:1px;}
+  .field-input{width:80px;height:46px;text-align:center;font-size:22px;font-weight:700;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;color:#d6e8ff;font-family:'Cinzel',serif;}
+  .field-input.negative{border-color:#7a2233;color:#e8445a;}
+  .field-input:focus{border-color:#7eb8f7;}
+  .field-input.negative:focus{border-color:#e8445a;}
+  .field-check{width:26px;height:26px;accent-color:#7eb8f7;cursor:pointer;}
+
+  .section-head{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#6a90c0;margin:16px 0 8px;text-transform:uppercase;}
+  .section-head.neg{color:#7a2233;}
+
+  .ptab{flex:1;padding:8px 4px;border:none;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2px;background:transparent;color:#6a90c0;font-weight:400;transition:all 0.15s;}
+  .ptab.active{background:#1a3f8f;color:#d6e8ff;font-weight:700;}
+
+  .meld-chip{display:inline-flex;align-items:center;gap:5px;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:20px;padding:4px 12px;font-family:'Cinzel',serif;font-size:11px;color:#6a90c0;}
+  .meld-chip.ok{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.08);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SETUP ═══════════════════════ -->
+<div id="screen-setup" class="screen active" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:460px;">
+    <div style="margin-bottom:12px;">
+      <button class="back-btn" onclick="window.location.href='../'">‹ Cabin Games</button>
+    </div>
+    <div style="text-align:center;margin-bottom:28px;">
+      <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;margin-bottom:8px;">CARD GAME SCORING</p>
+      <h1 style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:42px;font-weight:900;line-height:1;margin-bottom:12px;">MN Canasta</h1>
+      <div style="font-size:24px;display:flex;justify-content:center;gap:12px;">
+        <span style="color:#7eb8f7;">♠</span><span style="color:#7eb8f7;">♣</span>
+        <span style="color:#c24040;">♥</span><span style="color:#c24040;">♦</span>
+      </div>
+    </div>
+    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+      <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:10px;">PLAYERS / MODE</p>
+      <div style="display:flex;gap:6px;margin-bottom:20px;" id="mode-btns">
+        <button class="player-btn" data-mode="2" onclick="setMode('2')">2 Players</button>
+        <button class="player-btn" data-mode="3" onclick="setMode('3')">3 Players</button>
+        <button class="player-btn" data-mode="4" onclick="setMode('4')">4 Players</button>
+        <button class="player-btn" data-mode="partners" onclick="setMode('partners')">Partners</button>
+      </div>
+      <div id="name-inputs" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+      <button class="btn btn-gold btn-lg" style="width:100%;" onclick="startGame()">Begin Game</button>
+    </div>
+    <p style="text-align:center;color:#6a90c0;font-size:13px;margin-top:16px;opacity:0.7;">First to 20,000 points wins</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════ PLAYING ═══════════════════════ -->
+<div id="screen-playing" class="screen" style="flex-direction:column;">
+  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="back-btn" onclick="confirmBack()">‹</button>
+      <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">MN Canasta</span>
+    </div>
+    <span id="header-round" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:13px;font-weight:600;"></span>
+    <button id="read-btn" onclick="readScores()" title="Read scores aloud"
+      style="background:rgba(126,184,247,0.12);border:1px solid #1e3a6e;border-radius:8px;
+        padding:7px 11px;cursor:pointer;font-size:18px;line-height:1;transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(126,184,247,0.22)'"
+      onmouseout="this.style.background='rgba(126,184,247,0.12)'">🔊</button>
+  </div>
+
+  <div style="max-width:700px;margin:0 auto;padding:16px;width:100%;">
+    <div style="display:flex;gap:3px;margin-bottom:14px;background:#0b1630;border-radius:10px;padding:4px;border:1px solid #1e3a6e;">
+      <button class="tab active" id="tab-score" onclick="switchTab('score')">Score Round</button>
+      <button class="tab" id="tab-standings" onclick="switchTab('standings')">Standings</button>
+      <button class="tab" id="tab-history" onclick="switchTab('history')">History</button>
+    </div>
+    <div style="background:#0b1630;border-radius:14px;border:1px solid #1e3a6e;padding:20px;">
+      <div id="panel-score" class="panel-content active"></div>
+      <div id="panel-standings" class="panel-content"></div>
+      <div id="panel-history" class="panel-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ DONE ═══════════════════════ -->
+<div id="screen-done" class="screen" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:480px;text-align:center;">
+    <div style="font-size:56px;margin-bottom:8px;">🏆</div>
+    <h1 style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:28px;font-weight:900;margin-bottom:6px;">Game Over!</h1>
+    <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;margin-bottom:4px;">FINAL STANDINGS</p>
+    <div id="done-standings" style="margin:20px 0;text-align:left;"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-ghost btn-lg" style="flex:1;" onclick="window.location.href='../'">‹ Home</button>
+      <button class="btn btn-gold btn-lg" style="flex:2;" onclick="newGame()">New Game</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ─────────────────────────────────────────────────
+let mode = null; // '2','3','4','partners'
+let players = []; // [{id,name}] — for partners: 2 team entries
+let cumScores = {}; // {id: number}
+let rounds = []; // [{scores:{id:n}, data:{id:{...fields}}}]
+let currentData = {}; // {id:{...fields}} being entered
+let currentTab = 'score';
+let editingRound = null; // index or null
+let activePTab = 0; // which player tab is shown in round entry
+
+const WIN_SCORE = 20000;
+
+function fmt(n) { return n.toLocaleString('en-US'); }
+
+function getMeldReq(score) {
+  if (score < 5000) return 50;
+  if (score < 10000) return 90;
+  if (score < 15000) return 120;
+  return 150;
+}
+
+function calcRoundScore(d) {
+  return (d.clean||0)*500 + (d.dirty||0)*300 + (d.twos||0)*2100 + (d.runs||0)*1500
+    + (d.cardCount||0) - (d.cardsInHand||0)
+    - (d.red3s||0)*500 - (d.black3s||0)*300
+    + (d.wentOut ? 200 : 0);
+}
+
+// ─── Setup ─────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  renderNameInputs();
+}
+
+function renderNameInputs() {
+  const el = document.getElementById('name-inputs');
+  const existing = [...el.querySelectorAll('input')].map(i => i.value);
+  el.innerHTML = '';
+  const isPartners = mode === 'partners';
+  const count = isPartners ? 2 : (parseInt(mode) || 0);
+  const defaults = isPartners ? ['Team 1','Team 2'] : ['Player 1','Player 2','Player 3','Player 4'];
+  for (let i = 0; i < count; i++) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;';
+    const label = document.createElement('span');
+    label.textContent = isPartners ? `Team ${i+1}` : `Player ${i+1}`;
+    label.style.cssText = 'color:#6a90c0;font-family:Cinzel,serif;font-size:11px;letter-spacing:1px;min-width:60px;text-transform:uppercase;';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = existing[i] || defaults[i];
+    inp.placeholder = defaults[i];
+    inp.style.cssText = 'flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:Crimson Pro,serif;font-size:17px;';
+    row.appendChild(label);
+    row.appendChild(inp);
+    el.appendChild(row);
+  }
+}
+
+function getNames() {
+  return [...document.querySelectorAll('#name-inputs input')].map((el,i) => {
+    const isPartners = mode === 'partners';
+    const defaults = isPartners ? ['Team 1','Team 2'] : ['Player 1','Player 2','Player 3','Player 4'];
+    return el.value.trim() || defaults[i];
+  });
+}
+
+function startGame() {
+  if (!mode) return;
+  const names = getNames();
+  players = names.map((n,i) => ({id:i, name:n}));
+  cumScores = Object.fromEntries(players.map(p => [p.id, 0]));
+  rounds = [];
+  currentData = {};
+  editingRound = null;
+  activePTab = 0;
+  resetCurrentData();
+  switchTab('score');
+  showScreen('playing');
+  render();
+  saveState();
+}
+
+function resetCurrentData() {
+  currentData = Object.fromEntries(players.map(p => [p.id, {
+    clean:0, dirty:0, twos:0, runs:0,
+    cardCount:0, cardsInHand:0, red3s:0, black3s:0, wentOut:false
+  }]));
+}
+
+function newGame() {
+  localStorage.removeItem('cabin-canasta');
+  showScreen('setup');
+}
+
+function confirmBack() {
+  if (rounds.length === 0 || confirm('Leave game? Progress will be lost.')) window.location.href = '../';
+}
+
+// ─── Screen / Tab ───────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  render();
+}
+
+// ─── Render ─────────────────────────────────────────────────
+function render() {
+  const roundNum = editingRound !== null ? editingRound+1 : rounds.length+1;
+  document.getElementById('header-round').textContent =
+    editingRound !== null ? `Editing R${roundNum}` : `Round ${roundNum}`;
+
+  if (currentTab === 'score') renderScorePanel();
+  if (currentTab === 'standings') renderStandings();
+  if (currentTab === 'history') renderHistory();
+}
+
+// ─── Score Panel ─────────────────────────────────────────────
+function renderScorePanel() {
+  const el = document.getElementById('panel-score');
+
+  // Player tabs
+  const ptabs = players.map((p,i) => {
+    const rnd = calcRoundScore(currentData[p.id]||{});
+    const active = i === activePTab;
+    return `<button class="ptab ${active?'active':''}" onclick="setPTab(${i})">
+      ${p.name.length > 8 ? p.name.slice(0,7)+'…' : p.name}
+      <br><span style="font-size:10px;opacity:0.8;">${rnd>=0?'+':''}${fmt(rnd)}</span>
+    </button>`;
+  }).join('');
+
+  const p = players[activePTab];
+  const d = currentData[p.id] || {};
+  const cs = cumScores[p.id] || 0;
+  const meld = getMeldReq(cs);
+  const roundTotal = calcRoundScore(d);
+  const newTotal = cs + roundTotal;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:3px;background:#060d1f;border-radius:8px;padding:3px;border:1px solid #1e3a6e;margin-bottom:16px;">${ptabs}</div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:10px;margin-bottom:14px;">
+      <div>
+        <div style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">CURRENT SCORE</div>
+        <div style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(cs)}</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">MUST MELD</div>
+        <div style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(meld)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">THIS ROUND</div>
+        <div style="color:${roundTotal>=0?'#7eb8f7':'#e8445a'};font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${roundTotal>=0?'+':''}${fmt(roundTotal)}</div>
+      </div>
+    </div>
+
+    <div class="section-head">Canastas &amp; Going Out</div>
+    ${fieldRow('clean','Clean Canastas','500 pts each',p.id,d,'num')}
+    ${fieldRow('dirty','Dirty Canastas','300 pts each',p.id,d,'num')}
+    ${fieldRow('twos','Twos Canastas','2,100 pts each',p.id,d,'num')}
+    ${fieldRow('runs','Runs','1,500 pts each',p.id,d,'num')}
+    ${fieldRow('wentOut','Went Out','+200 pts',p.id,d,'check')}
+
+    <div class="section-head">Card Count</div>
+    ${fieldRow('cardCount','Cards in Melds','Point value of melded cards',p.id,d,'num')}
+
+    <div class="section-head neg">Negative Points</div>
+    ${fieldRow('cardsInHand','Cards in Hand','Point value still in hand',p.id,d,'neg')}
+    ${fieldRow('red3s','Red 3s','−500 pts each',p.id,d,'neg')}
+    ${fieldRow('black3s','Black 3s','−300 pts each',p.id,d,'neg')}
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(126,184,247,0.08);border:1px solid #1e3a6e;border-radius:10px;margin-top:14px;">
+      <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;">NEW TOTAL</span>
+      <span style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:24px;font-weight:700;">${fmt(newTotal)}</span>
+    </div>
+
+    ${players.every((p,i) => { const d=currentData[p.id]||{}; return true; }) ? `
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      ${editingRound !== null ? `
+        <button class="btn btn-ghost btn-md" style="flex:1;" onclick="cancelEdit()">Cancel</button>
+        <button class="btn btn-gold btn-md" style="flex:2;" onclick="saveRound()">Save Changes</button>
+      ` : `
+        <button class="btn btn-ghost btn-md" onclick="undoRound()" ${rounds.length===0?'disabled':''} style="padding:9px 16px;">Undo</button>
+        <button class="btn btn-gold btn-md" style="flex:1;" onclick="saveRound()">Submit Round ${rounds.length+1}</button>
+      `}
+    </div>` : ''}
+  `;
+}
+
+function fieldRow(key, label, sub, pid, d, type) {
+  const val = d[key];
+  if (type === 'check') {
+    return `<div class="field-row">
+      <div class="field-label">${label}<span class="field-sub">${sub}</span></div>
+      <input type="checkbox" class="field-check" ${val?'checked':''} onchange="setField(${pid},'${key}',this.checked)">
+    </div>`;
+  }
+  const isNeg = type === 'neg';
+  return `<div class="field-row">
+    <div class="field-label">${label}<span class="field-sub">${sub}</span></div>
+    <input type="number" class="field-input ${isNeg?'negative':''}" min="0" value="${val||0}"
+      oninput="setField(${pid},'${key}',parseInt(this.value)||0);renderScorePanel()">
+  </div>`;
+}
+
+function setPTab(i) {
+  activePTab = i;
+  renderScorePanel();
+}
+
+function setField(pid, key, val) {
+  if (!currentData[pid]) currentData[pid] = {};
+  currentData[pid][key] = val;
+  // re-render header round total without full render
+  const rnd = calcRoundScore(currentData[pid]);
+  document.getElementById('header-round').textContent =
+    editingRound !== null ? `Editing R${editingRound+1}` : `Round ${rounds.length+1}`;
+}
+
+// ─── Round Save / Undo / Edit ────────────────────────────────
+function saveRound() {
+  const scores = {};
+  players.forEach(p => { scores[p.id] = calcRoundScore(currentData[p.id]||{}); });
+  const dataCopy = JSON.parse(JSON.stringify(currentData));
+
+  if (editingRound !== null) {
+    // Recalculate all cumulative scores
+    rounds[editingRound] = { scores, data: dataCopy };
+    recalcCumulative();
+    editingRound = null;
+  } else {
+    rounds.push({ scores, data: dataCopy });
+    players.forEach(p => { cumScores[p.id] = (cumScores[p.id]||0) + scores[p.id]; });
+  }
+
+  resetCurrentData();
+  activePTab = 0;
+
+  // Check for winner
+  const winner = players.find(p => cumScores[p.id] >= WIN_SCORE);
+  if (winner) {
+    saveState();
+    renderDoneScreen();
+    showScreen('done');
+    return;
+  }
+
+  switchTab('standings');
+  render();
+  saveState();
+}
+
+function undoRound() {
+  if (rounds.length === 0) return;
+  rounds.pop();
+  recalcCumulative();
+  resetCurrentData();
+  activePTab = 0;
+  render();
+  saveState();
+}
+
+function startEditRound(idx) {
+  editingRound = idx;
+  currentData = JSON.parse(JSON.stringify(rounds[idx].data));
+  activePTab = 0;
+  switchTab('score');
+  saveState();
+}
+
+function cancelEdit() {
+  editingRound = null;
+  resetCurrentData();
+  activePTab = 0;
+  render();
+  saveState();
+}
+
+function recalcCumulative() {
+  cumScores = Object.fromEntries(players.map(p => [p.id, 0]));
+  rounds.forEach(r => {
+    players.forEach(p => { cumScores[p.id] += r.scores[p.id] || 0; });
+  });
+}
+
+// ─── Standings Panel ─────────────────────────────────────────
+function renderStandings() {
+  const el = document.getElementById('panel-standings');
+  const sorted = [...players].sort((a,b) => cumScores[b.id] - cumScores[a.id]);
+  const leader = sorted[0];
+
+  el.innerHTML = `
+    <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:12px;">
+      STANDINGS <span style="opacity:0.6;">· first to ${fmt(WIN_SCORE)} wins</span>
+    </p>
+    ${sorted.map((p,i) => {
+      const score = cumScores[p.id];
+      const meld = getMeldReq(score);
+      const pct = Math.min(100, Math.round(score / WIN_SCORE * 100));
+      return `
+        <div style="padding:14px 16px;margin-bottom:8px;border-radius:12px;
+          background:${i===0?'rgba(126,184,247,0.1)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+              background:${i===0?'linear-gradient(135deg,#7eb8f7,#a8d0ff)':'#1e3a6e'};
+              color:${i===0?'#060d1f':'#6a90c0'};font-family:'Cinzel',serif;font-weight:900;font-size:13px;">${i+1}</div>
+            <div style="flex:1;color:#d6e8ff;font-size:19px;">${p.name}</div>
+            <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(score)}</div>
+          </div>
+          <div style="height:4px;background:#1e3a6e;border-radius:2px;margin-bottom:6px;">
+            <div style="height:100%;width:${pct}%;background:${i===0?'linear-gradient(90deg,#7eb8f7,#a8d0ff)':'#2a5a8f'};border-radius:2px;transition:width 0.4s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;">MUST MELD: <span style="color:#d6e8ff;">${fmt(meld)}</span></span>
+            <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;">${pct}% to win</span>
+          </div>
+        </div>`;
+    }).join('')}
+    <div style="margin-top:16px;">
+      <button class="btn btn-gold btn-md" style="width:100%;" onclick="switchTab('score')">Score Next Round</button>
+    </div>
+  `;
+}
+
+// ─── History Panel ───────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('panel-history');
+  if (rounds.length === 0) {
+    el.innerHTML = `<p style="color:#6a90c0;text-align:center;padding:24px 0;font-size:16px;">No rounds played yet.</p>`;
+    return;
+  }
+
+  const nameCell = n => n.length > 8 ? n.slice(0,7)+'…' : n;
+
+  el.innerHTML = `<div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;font-family:'Crimson Pro',serif;">
+      <thead><tr>
+        <th style="padding:7px 10px;text-align:left;color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;border-bottom:1px solid #1e3a6e;">ROUND</th>
+        ${players.map(p=>`<th style="padding:7px 8px;text-align:center;color:#d6e8ff;font-family:'Cinzel',serif;font-size:11px;border-bottom:1px solid #1e3a6e;">${nameCell(p.name)}</th>`).join('')}
+        <th style="padding:7px 8px;text-align:center;border-bottom:1px solid #1e3a6e;"></th>
+      </tr></thead>
+      <tbody>
+        ${rounds.map((r,idx) => `
+          <tr>
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(30,58,110,0.4);color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;">R${idx+1}</td>
+            ${players.map(p => {
+              const s = r.scores[p.id]||0;
+              return `<td style="padding:6px 8px;text-align:center;color:${s>=0?'#d6e8ff':'#e8445a'};border-bottom:1px solid rgba(30,58,110,0.4);">${s>=0?'+':''}${fmt(s)}</td>`;
+            }).join('')}
+            <td style="padding:6px 8px;border-bottom:1px solid rgba(30,58,110,0.4);text-align:center;">
+              <button class="btn btn-ghost btn-sm" onclick="startEditRound(${idx})">Edit</button>
+            </td>
+          </tr>`).join('')}
+        <tr style="background:rgba(126,184,247,0.08);">
+          <td style="padding:10px;color:#7eb8f7;font-family:'Cinzel',serif;font-size:11px;font-weight:700;">TOTAL</td>
+          ${players.map(p=>`<td style="padding:10px 8px;text-align:center;color:#7eb8f7;font-family:'Cinzel',serif;font-weight:700;font-size:18px;">${fmt(cumScores[p.id]||0)}</td>`).join('')}
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ─── Done Screen ─────────────────────────────────────────────
+function renderDoneScreen() {
+  const sorted = [...players].sort((a,b) => cumScores[b.id]-cumScores[a.id]);
+  const podiumColors = ['linear-gradient(135deg,#7eb8f7,#a8d0ff)','#4a7ab5','#2a5a8f'];
+  const borderColors = ['#7eb8f7','#4a7ab5','#2a5a8f','#1e3a6e'];
+  document.getElementById('done-standings').innerHTML = sorted.map((p,i) => `
+    <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
+      background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${borderColors[Math.min(i,3)]};">
+      <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        background:${podiumColors[i]||'#1e3a6e'};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="color:#d6e8ff;font-size:20px;">${p.name}</div>
+        <div style="color:#6a90c0;font-size:13px;">${rounds.length} rounds played</div>
+      </div>
+      <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:24px;font-weight:700;">${fmt(cumScores[p.id])}</div>
+    </div>`).join('');
+}
+
+// ─── Speech ──────────────────────────────────────────────────
+function readScores() {
+  window.speechSynthesis.cancel();
+  const sorted = [...players].sort((a,b) => cumScores[b.id]-cumScores[a.id]);
+  const lines = ['Current standings.'];
+  sorted.slice().reverse().forEach((p,i) => {
+    const pos = sorted.length-i;
+    const suffix = pos===1?'st':pos===2?'nd':pos===3?'rd':'th';
+    lines.push(`In ${pos}${suffix} place, ${p.name}, with ${fmt(cumScores[p.id])} points.`);
+  });
+  lines.push('Meld requirements for next round.');
+  sorted.forEach(p => {
+    lines.push(`${p.name} must meld ${getMeldReq(cumScores[p.id])} points.`);
+  });
+
+  const btn = document.getElementById('read-btn');
+  btn.textContent = '⏹';
+  btn.onclick = () => { window.speechSynthesis.cancel(); btn.textContent='🔊'; btn.onclick=readScores; };
+
+  let i = 0;
+  function speak() {
+    if (i >= lines.length) { btn.textContent='🔊'; btn.onclick=readScores; return; }
+    const u = new SpeechSynthesisUtterance(lines[i++]);
+    u.rate = 0.95;
+    u.onend = () => setTimeout(speak, 180);
+    u.onerror = () => { btn.textContent='🔊'; btn.onclick=readScores; };
+    window.speechSynthesis.speak(u);
+  }
+  speak();
+}
+
+function saveState(){
+  try{
+    if(!players.length){localStorage.removeItem('cabin-canasta');return;}
+    localStorage.setItem('cabin-canasta',JSON.stringify({mode,players,cumScores,rounds,currentData,activePTab,editingRound}));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('cabin-canasta');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s.players||!s.players.length)return;
+    mode=s.mode;players=s.players;cumScores=s.cumScores||{};rounds=s.rounds||[];
+    currentData=s.currentData||{};activePTab=s.activePTab||0;editingRound=s.editingRound!==undefined?s.editingRound:null;
+    if(!Object.keys(cumScores).length) cumScores=Object.fromEntries(players.map(p=>[p.id,0]));
+    if(!Object.keys(currentData).length) resetCurrentData();
+    // Check if game was won
+    const winner=players.find(p=>cumScores[p.id]>=WIN_SCORE);
+    if(winner){renderDoneScreen();showScreen('done');}
+    else{showScreen('playing');switchTab('standings');}
+  }catch(e){}
+}
+loadState();
+</script>
+</body>
+</html>

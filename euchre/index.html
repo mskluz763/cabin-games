@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euchre — Cabin Games</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;min-height:100vh;}
+  button:focus{outline:none;}
+
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;}
+
+  .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
+  .btn-sm{padding:6px 14px;font-size:12px;}
+  .btn-md{padding:9px 20px;font-size:13px;}
+  .btn-lg{padding:13px 28px;font-size:16px;}
+
+  .back-btn{background:transparent;border:none;color:#6a90c0;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;letter-spacing:0.5px;transition:color 0.15s;}
+  .back-btn:hover{color:#d6e8ff;}
+
+  .label{color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block;}
+
+  /* Win button — the main interaction */
+  .win-btn{
+    width:100%;padding:28px 20px;border:2px solid #1e3a6e;border-radius:16px;
+    background:#0b1630;cursor:pointer;transition:all 0.15s;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .win-btn:active{transform:scale(0.97);}
+  .win-btn.lead{border-color:#7eb8f7;background:rgba(126,184,247,0.08);}
+  .win-btn-name{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#d6e8ff;}
+  .win-btn-count{font-family:'Cinzel',serif;font-size:72px;font-weight:900;line-height:1;color:#7eb8f7;}
+  .win-btn.lead .win-btn-count{color:#a8d0ff;}
+  .win-btn-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#6a90c0;text-transform:uppercase;}
+
+  /* Pip dots */
+  .pips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+  .pip{width:10px;height:10px;border-radius:50%;background:#7eb8f7;}
+  .pip.empty{background:transparent;border:1px solid #1e3a6e;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SETUP ══════════════ -->
+<div id="screen-setup" class="screen active" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:400px;">
+    <div style="margin-bottom:12px;">
+      <button class="back-btn" onclick="window.location.href='../'">‹ Cabin Games</button>
+    </div>
+    <div style="text-align:center;margin-bottom:28px;">
+      <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;margin-bottom:8px;">CARD GAME SCORING</p>
+      <h1 style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:52px;font-weight:900;line-height:1;margin-bottom:12px;">Euchre</h1>
+      <div style="font-size:24px;display:flex;justify-content:center;gap:12px;">
+        <span style="color:#d6e8ff;">♠</span><span style="color:#d6e8ff;">♣</span>
+        <span style="color:#c24040;">♥</span><span style="color:#c24040;">♦</span>
+      </div>
+    </div>
+
+    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+      <span class="label">Team Names</span>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 1</span>
+          <input id="t1-name" type="text" value="Team 1" placeholder="Team 1"
+            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 2</span>
+          <input id="t2-name" type="text" value="Team 2" placeholder="Team 2"
+            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+        </div>
+      </div>
+
+      <span class="label">First to — games wins the match</span>
+      <div style="display:flex;gap:8px;margin-bottom:24px;" id="target-btns">
+        ${[3,5,7,10].map(n => `
+          <button onclick="setTarget(${n})" data-t="${n}"
+            style="flex:1;padding:10px 0;border:1px solid #1e3a6e;border-radius:8px;background:transparent;
+              color:#6a90c0;font-family:'Cinzel',serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;"
+            class="target-btn">${n}</button>
+        `).join('')}
+      </div>
+
+      <button class="btn btn-gold btn-lg" style="width:100%;" onclick="startGame()">Begin Match</button>
+    </div>
+    <p style="text-align:center;color:#6a90c0;font-size:13px;margin-top:16px;opacity:0.7;">In-game points tracked with cards as usual</p>
+  </div>
+</div>
+
+<!-- ══════════════ PLAYING ══════════════ -->
+<div id="screen-playing" class="screen" style="flex-direction:column;">
+  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="back-btn" onclick="confirmBack()">‹</button>
+      <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:18px;font-weight:700;">Euchre</span>
+    </div>
+    <span id="header-info" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:13px;font-weight:600;"></span>
+    <button id="undo-btn" class="btn btn-ghost btn-sm" onclick="undoGame()" disabled>Undo</button>
+  </div>
+
+  <div style="max-width:500px;margin:0 auto;padding:16px;width:100%;flex:1;display:flex;flex-direction:column;gap:12px;">
+
+    <!-- Instruction -->
+    <p style="text-align:center;color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;padding-top:4px;">TAP THE TEAM THAT WON THE GAME</p>
+
+    <!-- Win buttons -->
+    <button class="win-btn" id="win-btn-0" onclick="recordWin(0)">
+      <div class="win-btn-name" id="name-0"></div>
+      <div class="win-btn-count" id="count-0">0</div>
+      <div class="pips" id="pips-0"></div>
+      <div class="win-btn-label">games won</div>
+    </button>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="flex:1;height:1px;background:#1e3a6e;"></div>
+      <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;">VS</span>
+      <div style="flex:1;height:1px;background:#1e3a6e;"></div>
+    </div>
+
+    <button class="win-btn" id="win-btn-1" onclick="recordWin(1)">
+      <div class="win-btn-name" id="name-1"></div>
+      <div class="win-btn-count" id="count-1">0</div>
+      <div class="pips" id="pips-1"></div>
+      <div class="win-btn-label">games won</div>
+    </button>
+
+    <!-- History strip -->
+    <div id="history-strip" style="display:none;margin-top:4px;">
+      <span class="label">Game Log</span>
+      <div id="history-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ DONE ══════════════ -->
+<div id="screen-done" class="screen" style="align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:400px;text-align:center;">
+    <div style="font-size:56px;margin-bottom:8px;">🏆</div>
+    <h1 id="done-title" style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:30px;font-weight:900;margin-bottom:8px;"></h1>
+    <p id="done-sub" style="color:#6a90c0;font-size:16px;margin-bottom:32px;"></p>
+    <div id="done-scores" style="margin-bottom:32px;text-align:left;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost btn-lg" style="flex:1;" onclick="window.location.href='../'">‹ Home</button>
+      <button class="btn btn-gold btn-lg" style="flex:2;" onclick="newGame()">New Match</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let teams = [];
+let target = 5;
+let wins = [0, 0];
+let log = []; // list of team indices (0 or 1) per game
+
+// ─── Setup ───────────────────────────────────────────────────
+let selectedTarget = 5;
+document.addEventListener('DOMContentLoaded', () => { setTarget(5); loadState(); });
+
+function setTarget(n) {
+  selectedTarget = n;
+  document.querySelectorAll('.target-btn').forEach(b => {
+    const active = parseInt(b.dataset.t) === n;
+    b.style.background = active ? 'linear-gradient(135deg,#7eb8f7,#a8d0ff)' : 'transparent';
+    b.style.color = active ? '#060d1f' : '#6a90c0';
+    b.style.borderColor = active ? '#7eb8f7' : '#1e3a6e';
+  });
+}
+
+function startGame() {
+  const n1 = document.getElementById('t1-name').value.trim() || 'Team 1';
+  const n2 = document.getElementById('t2-name').value.trim() || 'Team 2';
+  teams = [n1, n2];
+  target = selectedTarget;
+  wins = [0, 0];
+  log = [];
+  showScreen('playing');
+  render();
+  saveState();
+}
+
+function newGame() { localStorage.removeItem('cabin-euchre'); showScreen('setup'); }
+
+function confirmBack() {
+  if (log.length === 0 || confirm('Leave match? Progress will be lost.')) window.location.href = '../';
+}
+
+// ─── Core logic ──────────────────────────────────────────────
+function recordWin(teamIdx) {
+  wins[teamIdx]++;
+  log.push(teamIdx);
+  if (wins[teamIdx] >= target) {
+    saveState();
+    render();
+    setTimeout(() => { renderDone(teamIdx); showScreen('done'); }, 300);
+    return;
+  }
+  render();
+  saveState();
+}
+
+function undoGame() {
+  if (log.length === 0) return;
+  const last = log.pop();
+  wins[last]--;
+  render();
+  saveState();
+}
+
+// ─── Render ──────────────────────────────────────────────────
+function render() {
+  const total = wins[0] + wins[1];
+  document.getElementById('header-info').textContent =
+    `First to ${target} · ${total} game${total !== 1 ? 's' : ''} played`;
+
+  const leading = wins[0] > wins[1] ? 0 : wins[1] > wins[0] ? 1 : -1;
+
+  [0, 1].forEach(i => {
+    document.getElementById('name-' + i).textContent = teams[i];
+    document.getElementById('count-' + i).textContent = wins[i];
+
+    const btn = document.getElementById('win-btn-' + i);
+    btn.classList.toggle('lead', leading === i);
+
+    // Pip dots up to target
+    const pipsEl = document.getElementById('pips-' + i);
+    pipsEl.innerHTML = Array.from({length: target}, (_, k) =>
+      `<div class="pip ${k < wins[i] ? '' : 'empty'}"></div>`
+    ).join('');
+  });
+
+  // History strip
+  const strip = document.getElementById('history-strip');
+  const list = document.getElementById('history-list');
+  if (log.length > 0) {
+    strip.style.display = 'block';
+    list.innerHTML = log.map((t, i) => `
+      <div style="background:#0e1e3d;border:1px solid #1e3a6e;border-radius:20px;
+        padding:4px 12px;font-family:'Cinzel',serif;font-size:11px;color:#6a90c0;">
+        <span style="color:#d6e8ff;">G${i + 1}</span>
+        <span style="margin-left:4px;">${teams[t].length > 10 ? teams[t].slice(0, 9) + '…' : teams[t]}</span>
+      </div>`).join('');
+  } else {
+    strip.style.display = 'none';
+  }
+
+  // Undo button
+  document.getElementById('undo-btn').disabled = log.length === 0;
+}
+
+// ─── Done screen ─────────────────────────────────────────────
+function renderDone(winnerIdx) {
+  const loser = 1 - winnerIdx;
+  document.getElementById('done-title').textContent = `${teams[winnerIdx]} wins!`;
+  document.getElementById('done-sub').textContent =
+    `${wins[winnerIdx]}–${wins[loser]} · ${log.length} games played`;
+
+  const podiumColors = ['linear-gradient(135deg,#7eb8f7,#a8d0ff)', '#2a5a8f'];
+  const sorted = winnerIdx === 0
+    ? [{name: teams[0], w: wins[0], rank: 0}, {name: teams[1], w: wins[1], rank: 1}]
+    : [{name: teams[1], w: wins[1], rank: 0}, {name: teams[0], w: wins[0], rank: 1}];
+
+  document.getElementById('done-scores').innerHTML = sorted.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
+      background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+      <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        background:${podiumColors[i]};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${i+1}</div>
+      <div style="flex:1;color:#d6e8ff;font-size:20px;">${t.name}</div>
+      <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:26px;font-weight:700;">${t.w}</div>
+    </div>`).join('');
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function saveState(){
+  try{
+    if(!teams.length){localStorage.removeItem('cabin-euchre');return;}
+    localStorage.setItem('cabin-euchre',JSON.stringify({teams,target,wins,log}));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('cabin-euchre');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s.teams||!s.teams.length)return;
+    teams=s.teams;target=s.target||5;wins=s.wins||[0,0];log=s.log||[];
+    setTarget(target);
+    // Check if game was already won
+    const winnerIdx=wins.findIndex(w=>w>=target);
+    if(winnerIdx>=0){render();setTimeout(()=>{renderDone(winnerIdx);showScreen('done');},0);}
+    else{showScreen('playing');render();}
+  }catch(e){}
+}
+</script>
+</body>
+</html>

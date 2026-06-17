@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearts — Cabin Games</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#060d1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cabin Games">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #060d1f;
+    --surface: #0b1630;
+    --card: #0e1e3d;
+    --border: #1e3a6e;
+    --red: #e8445a;
+    --red-dim: #7a2233;
+    --cream: #d6e8ff;
+    --muted: #6a90c0;
+    --danger: #e8445a;
+    --safe: #4ade80;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    padding: 0 0 3rem;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 0;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    transition: color 0.15s;
+  }
+  .back-btn:hover { color: var(--cream); }
+
+  header {
+    text-align: center;
+    padding: 1.2rem 1rem 1.6rem;
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  header h1 span { color: var(--red); }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+  }
+
+  #setup { max-width: 460px; margin: 0 auto; padding: 0 1rem; }
+
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.8rem;
+  }
+
+  .setup-card h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .player-count-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+
+  .count-btn {
+    flex: 1;
+    padding: 0.6rem 0;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .count-btn:hover { border-color: var(--red-dim); color: var(--cream); }
+  .count-btn.active { border-color: var(--red); color: var(--red); background: rgba(232,68,90,0.1); }
+
+  #player-names { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+
+  .name-input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    color: var(--cream);
+    font-size: 1rem;
+    font-family: 'Crimson Pro', serif;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .name-input:focus { outline: none; border-color: var(--red); }
+  .name-input::placeholder { color: var(--muted); }
+
+  .limit-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; }
+  .limit-row label { color: var(--muted); font-size: 0.9rem; white-space: nowrap; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .limit-row input[type=number] {
+    width: 80px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    color: var(--cream);
+    font-size: 1rem;
+    font-family: 'Crimson Pro', serif;
+  }
+  .limit-row input:focus { outline: none; border-color: var(--red); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  #game { display: none; max-width: 700px; margin: 0 auto; padding: 0 1rem; }
+
+  .score-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 1.2rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .score-table table { width: max-content; min-width: 100%; border-collapse: collapse; }
+
+  .score-table th {
+    padding: 0.75rem 0.6rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    background: var(--card);
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-family: 'Cinzel', serif;
+  }
+
+  .score-table th.player-name-th,
+  .score-table td.player-cell {
+    position: sticky; left: 0; z-index: 2; background: var(--card);
+  }
+  .score-table tr.leading td.player-cell { background: #0e1a30; }
+
+  .score-table th.player-name-th {
+    text-align: left; padding-left: 1rem; width: 90px; min-width: 80px;
+  }
+
+  .score-table th.total-th,
+  .score-table td.total-cell {
+    position: sticky; right: 0; z-index: 2; background: var(--card);
+    box-shadow: -2px 0 8px rgba(0,0,0,0.4);
+  }
+  .score-table tr.leading td.total-cell { background: #0e1a30; }
+
+  .score-table td {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    color: var(--cream);
+    white-space: nowrap;
+  }
+
+  .score-table td.player-cell {
+    text-align: left; padding-left: 1rem; font-weight: 600;
+    font-size: 0.85rem; width: 90px; min-width: 80px; max-width: 100px;
+    overflow: hidden; text-overflow: ellipsis;
+    font-family: 'Cinzel', serif;
+  }
+
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table td.total-cell { font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 700; }
+  .total-cell.safe { color: var(--safe); }
+  .total-cell.warn { color: #f59e0b; }
+  .total-cell.danger { color: var(--red); }
+  .score-table tr.leading td { background: rgba(232,68,90,0.07); }
+
+  .scroll-hint {
+    font-size: 0.7rem; color: var(--muted); text-align: center;
+    margin-bottom: 0.5rem; letter-spacing: 0.05em; display: none;
+    font-family: 'Cinzel', serif;
+  }
+  .scroll-hint.visible { display: block; }
+
+  .round-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .round-entry h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .round-entry h2 span {
+    color: var(--red);
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0;
+    margin-left: 0.4rem;
+    text-transform: none;
+  }
+
+  .entry-grid { display: grid; gap: 0.6rem; margin-bottom: 1rem; }
+
+  .entry-row { display: flex; align-items: center; gap: 0.8rem; }
+
+  .entry-row label {
+    min-width: 90px; font-size: 0.95rem; color: var(--cream);
+    font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .score-input {
+    width: 72px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+    color: var(--cream);
+    font-size: 1rem;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .score-input:focus { outline: none; border-color: var(--red); }
+
+  .shot-moon-row {
+    display: flex; align-items: center; gap: 0.7rem;
+    font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem;
+  }
+
+  .shot-moon-row select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+    color: var(--cream);
+    font-size: 0.88rem;
+    font-family: 'Crimson Pro', serif;
+    cursor: pointer;
+  }
+  .shot-moon-row select:focus { outline: none; border-color: var(--red); }
+
+  .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.8rem; }
+
+  .total-check {
+    font-size: 0.8rem; margin-bottom: 0.9rem; padding: 0.45rem 0.8rem;
+    border-radius: 6px; display: none; font-family: 'Cinzel', serif; letter-spacing: 0.03em;
+  }
+  .total-check.ok { background: rgba(74,222,128,0.1); color: var(--safe); display: block; }
+  .total-check.bad { background: rgba(232,68,90,0.1); color: var(--red); display: block; }
+
+  .btn-row { display: flex; gap: 0.7rem; }
+
+  .btn-secondary {
+    flex: 1; padding: 0.75rem;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 10px; font-size: 0.9rem;
+    font-family: 'Cinzel', serif; cursor: pointer; transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .btn-secondary:hover { border-color: var(--red-dim); color: var(--cream); }
+
+  .btn-add {
+    flex: 2; padding: 0.75rem; background: var(--red); color: #fff;
+    border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+    font-family: 'Cinzel', serif; cursor: pointer; transition: opacity 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .btn-add:hover { opacity: 0.88; }
+
+  #winner-banner {
+    display: none;
+    background: rgba(232,68,90,0.08);
+    border: 1px solid var(--red);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+
+  #winner-banner h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+  }
+
+  #winner-banner p { color: var(--muted); font-size: 0.9rem; }
+
+  .btn-new-game {
+    margin-top: 1rem; padding: 0.7rem 1.8rem;
+    background: var(--red); color: #fff; border: none; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 700; font-family: 'Cinzel', serif;
+    cursor: pointer; transition: opacity 0.15s; letter-spacing: 0.04em;
+  }
+  .btn-new-game:hover { opacity: 0.88; }
+
+  .score-table th.round-th {
+    cursor: pointer; transition: color 0.15s, background 0.15s;
+  }
+  .score-table th.round-th:hover { color: var(--red); background: rgba(232,68,90,0.08); }
+
+  #edit-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 100;
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  #edit-modal-overlay.open { display: flex; }
+
+  #edit-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.6rem;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  #edit-modal h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 0.25rem;
+  }
+
+  #edit-modal .modal-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.2rem; }
+
+  #edit-entry-grid { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.9rem; }
+
+  #edit-total-check {
+    font-size: 0.8rem; margin-bottom: 0.9rem; padding: 0.45rem 0.8rem;
+    border-radius: 6px; display: none;
+  }
+  #edit-total-check.ok { background: rgba(74,222,128,0.1); color: var(--safe); display: block; }
+  #edit-total-check.bad { background: rgba(232,68,90,0.1); color: var(--red); display: block; }
+
+  @media (max-width: 420px) {
+    header h1 { font-size: 1.9rem; }
+    .score-table td, .score-table th { padding: 0.5rem 0.35rem; font-size: 0.78rem; }
+    .score-table td.player-cell { padding-left: 0.6rem; font-size: 0.78rem; }
+    .score-table th.player-name-th { padding-left: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="confirmBack()">‹ Cabin Games</button>
+</div>
+
+<header>
+  <h1>♥ Hearts <span>Scorer</span></h1>
+  <p>Track points · First to bust loses</p>
+</header>
+
+<div id="setup">
+  <div class="setup-card">
+    <h2>Number of Players</h2>
+    <div class="player-count-row" id="count-btns">
+      <button class="count-btn" onclick="setCount(2)">2</button>
+      <button class="count-btn active" onclick="setCount(3)">3</button>
+      <button class="count-btn" onclick="setCount(4)">4</button>
+      <button class="count-btn" onclick="setCount(5)">5</button>
+      <button class="count-btn" onclick="setCount(6)">6</button>
+    </div>
+
+    <h2>Player Names</h2>
+    <div id="player-names"></div>
+
+    <div class="limit-row">
+      <label for="score-limit">Bust at</label>
+      <input type="number" id="score-limit" value="100" min="10" max="999">
+      <span style="color:var(--muted);font-size:0.88rem;">points</span>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()">Start Game</button>
+  </div>
+</div>
+
+<div id="game">
+  <div id="winner-banner">
+    <h2 id="winner-name"></h2>
+    <p id="winner-sub"></p>
+    <div style="display:flex;gap:0.7rem;justify-content:center;margin-top:1rem;">
+      <button class="btn-new-game" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:0;" onclick="undoRound()">Undo Last Round</button>
+      <button class="btn-new-game" style="margin-top:0;" onclick="newGame()">New Game</button>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="scroll-hint">← swipe to see rounds →</div>
+  <div class="score-table" id="score-table-wrap">
+    <table id="score-table">
+      <thead id="score-head"></thead>
+      <tbody id="score-body"></tbody>
+    </table>
+  </div>
+
+  <div class="round-entry" id="round-entry">
+    <h2>Round <span id="round-label"></span></h2>
+    <div class="hint">Hearts taken by each player (Queen of Spades = 13 pts)</div>
+
+    <div class="shot-moon-row">
+      <span>🌙 Shot the moon?</span>
+      <select id="moon-shooter">
+        <option value="">— Nobody —</option>
+      </select>
+    </div>
+
+    <div class="entry-grid" id="entry-grid"></div>
+
+    <div id="total-check" class="total-check"></div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="undoRound()">Undo</button>
+      <button class="btn-add" onclick="addRound()">Add Round</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-modal-overlay" onclick="closeEditModal(event)">
+  <div id="edit-modal">
+    <h3 id="edit-modal-title">Edit Round</h3>
+    <div class="modal-sub">Adjust scores then save.</div>
+    <div id="edit-entry-grid"></div>
+    <div id="edit-total-check"></div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-add" onclick="saveEditRound()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let players = [];
+  let editingRound = null;
+  let scores = [];
+  let limit = 100;
+  let playerCount = 3;
+  let gameOver = false;
+
+  function confirmBack() {
+    if (scores.length === 0 || scores[0].length === 0 || gameOver) {
+      window.location.href = '../';
+    } else if (confirm('Leave game? Progress will be lost.')) {
+      window.location.href = '../';
+    }
+  }
+
+  function setCount(n) {
+    playerCount = n;
+    document.querySelectorAll('.count-btn').forEach((b, i) => {
+      b.classList.toggle('active', i + 2 === n);
+    });
+    buildNameInputs();
+  }
+
+  function buildNameInputs() {
+    const container = document.getElementById('player-names');
+    const existing = [...container.querySelectorAll('.name-input')].map(i => i.value);
+    container.innerHTML = '';
+    const defaults = ['Alice','Bob','Carol','Dave','Eve','Frank'];
+    for (let i = 0; i < playerCount; i++) {
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'name-input';
+      inp.placeholder = `Player ${i + 1} (e.g. ${defaults[i]})`;
+      inp.value = existing[i] || '';
+      container.appendChild(inp);
+    }
+  }
+
+  function startGame() {
+    const inputs = document.querySelectorAll('.name-input');
+    const defaults = ['Alice','Bob','Carol','Dave','Eve','Frank'];
+    players = [...inputs].map((inp, i) => inp.value.trim() || defaults[i]);
+    limit = parseInt(document.getElementById('score-limit').value) || 100;
+    scores = players.map(() => []);
+    gameOver = false;
+
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    document.getElementById('winner-banner').style.display = 'none';
+
+    buildScoreTable();
+    buildEntryForm();
+    updateTable();
+  }
+
+  function buildScoreTable() {
+    const head = document.getElementById('score-head');
+    const roundCount = Math.max(...scores.map(s => s.length), 0);
+    let headRow = `<tr><th class="player-name-th">Player</th>`;
+    for (let r = 0; r < roundCount; r++) headRow += `<th class="round-th" onclick="openEditModal(${r})" title="Click to edit round ${r+1}">R${r+1} ✎</th>`;
+    headRow += `<th class="total-th">Total</th></tr>`;
+    head.innerHTML = headRow;
+
+    requestAnimationFrame(() => {
+      const wrap = document.getElementById('score-table-wrap');
+      const hint = document.getElementById('scroll-hint');
+      if (wrap && hint) hint.classList.toggle('visible', wrap.scrollWidth > wrap.clientWidth);
+    });
+  }
+
+  function updateTable() {
+    buildScoreTable();
+    const body = document.getElementById('score-body');
+    const roundCount = Math.max(...scores.map(s => s.length), 0);
+    const totals = scores.map(s => s.reduce((a, b) => a + b, 0));
+    const maxTotal = Math.max(...totals);
+
+    body.innerHTML = players.map((name, i) => {
+      const total = totals[i];
+      const isLeading = total === maxTotal && roundCount > 0;
+      let tClass = total < limit * 0.6 ? 'safe' : total < limit * 0.85 ? 'warn' : 'danger';
+      let row = `<tr ${isLeading && roundCount > 0 ? 'class="leading"' : ''}>`;
+      row += `<td class="player-cell" title="${name}">${name}</td>`;
+      for (let r = 0; r < roundCount; r++) {
+        const v = scores[i][r];
+        row += `<td>${v !== undefined ? v : '—'}</td>`;
+      }
+      row += `<td class="total-cell ${tClass}">${total}</td></tr>`;
+      return row;
+    }).join('');
+
+    checkWinner(totals);
+  }
+
+  function checkWinner(totals) {
+    if (gameOver) return;
+    const busted = totals.some(t => t >= limit);
+    if (!busted) return;
+    gameOver = true;
+    const minScore = Math.min(...totals);
+    const winners = players.filter((_, i) => totals[i] === minScore);
+    const banner = document.getElementById('winner-banner');
+    const entry = document.getElementById('round-entry');
+    document.getElementById('winner-name').textContent =
+      winners.length === 1 ? `🏆 ${winners[0]} wins!` : `🏆 Tie: ${winners.join(' & ')}`;
+    document.getElementById('winner-sub').textContent =
+      `Lowest score: ${minScore} pts  ·  Bust limit: ${limit} pts`;
+    banner.style.display = 'block';
+    entry.style.display = 'none';
+  }
+
+  function buildEntryForm() {
+    const grid = document.getElementById('entry-grid');
+    const moonSel = document.getElementById('moon-shooter');
+    moonSel.innerHTML = '<option value="">— Nobody —</option>';
+
+    grid.innerHTML = players.map((name, i) => `
+      <div class="entry-row">
+        <label for="score-inp-${i}" title="${name}">${name}</label>
+        <input class="score-input" type="number" id="score-inp-${i}"
+               min="0" max="26" placeholder="0" oninput="checkTotal()">
+      </div>`).join('');
+
+    players.forEach((name, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = name;
+      moonSel.appendChild(opt);
+    });
+
+    document.getElementById('moon-shooter').addEventListener('change', () => {
+      const shooter = document.getElementById('moon-shooter').value;
+      if (shooter !== '') {
+        players.forEach((_, i) => {
+          const inp = document.getElementById(`score-inp-${i}`);
+          if (inp) { inp.value = i == shooter ? 0 : 26; inp.readOnly = true; inp.style.opacity = '0.5'; }
+        });
+      } else {
+        players.forEach((_, i) => {
+          const inp = document.getElementById(`score-inp-${i}`);
+          if (inp) { inp.value = ''; inp.readOnly = false; inp.style.opacity = '1'; }
+        });
+      }
+      checkTotal();
+    });
+
+    updateRoundLabel();
+  }
+
+  function updateRoundLabel() {
+    const r = scores[0].length + 1;
+    document.getElementById('round-label').textContent = r;
+  }
+
+  function checkTotal() {
+    const moonSel = document.getElementById('moon-shooter').value;
+    if (moonSel !== '') {
+      document.getElementById('total-check').className = 'total-check ok';
+      document.getElementById('total-check').textContent = '🌙 Shot the moon — shooter gets 0, everyone else +26.';
+      return;
+    }
+    let sum = 0; let valid = true;
+    players.forEach((_, i) => {
+      const v = parseInt(document.getElementById(`score-inp-${i}`)?.value || '0');
+      if (isNaN(v)) valid = false; else sum += v;
+    });
+    const check = document.getElementById('total-check');
+    if (!valid) {
+      check.className = 'total-check bad'; check.textContent = 'Invalid input detected.';
+    } else if (sum === 26) {
+      check.className = 'total-check ok'; check.textContent = `✓ Total: ${sum} pts (correct)`;
+    } else if (sum === 0) {
+      check.className = 'total-check';
+    } else {
+      check.className = 'total-check bad';
+      check.textContent = `Total: ${sum} pts — standard round totals 26 (hearts=13 + Q♠=13)`;
+    }
+  }
+
+  function addRound() {
+    if (gameOver) return;
+    const moonSel = document.getElementById('moon-shooter').value;
+    const roundScores = [];
+    if (moonSel !== '') {
+      const shooterIdx = parseInt(moonSel);
+      players.forEach((_, i) => roundScores.push(i === shooterIdx ? 0 : 26));
+    } else {
+      for (let i = 0; i < players.length; i++) {
+        const v = parseInt(document.getElementById(`score-inp-${i}`)?.value || '0');
+        roundScores.push(isNaN(v) ? 0 : Math.max(0, v));
+      }
+    }
+    players.forEach((_, i) => scores[i].push(roundScores[i]));
+    updateTable();
+    saveState();
+    if (!gameOver) {
+      document.getElementById('moon-shooter').value = '';
+      players.forEach((_, i) => {
+        const inp = document.getElementById(`score-inp-${i}`);
+        if (inp) { inp.value = ''; inp.readOnly = false; inp.style.opacity = '1'; }
+      });
+      document.getElementById('total-check').className = 'total-check';
+      updateRoundLabel();
+    }
+  }
+
+  function undoRound() {
+    const roundCount = scores[0].length;
+    if (roundCount === 0) return;
+    players.forEach((_, i) => scores[i].pop());
+    gameOver = false;
+    document.getElementById('winner-banner').style.display = 'none';
+    document.getElementById('round-entry').style.display = 'block';
+    document.getElementById('moon-shooter').value = '';
+    players.forEach((_, i) => {
+      const inp = document.getElementById(`score-inp-${i}`);
+      if (inp) { inp.value = ''; inp.readOnly = false; inp.style.opacity = '1'; }
+    });
+    document.getElementById('total-check').className = 'total-check';
+    updateTable(); updateRoundLabel(); saveState();
+  }
+
+  function openEditModal(roundIdx) {
+    editingRound = roundIdx;
+    document.getElementById('edit-modal-title').textContent = `Edit Round ${roundIdx + 1}`;
+    document.getElementById('edit-total-check').className = 'total-check';
+    const grid = document.getElementById('edit-entry-grid');
+    grid.innerHTML = players.map((name, i) => `
+      <div class="entry-row">
+        <label for="edit-inp-${i}" title="${name}">${name}</label>
+        <input class="score-input" type="number" id="edit-inp-${i}"
+               min="0" max="26" value="${scores[i][roundIdx] ?? 0}" oninput="checkEditTotal()">
+      </div>`).join('');
+    document.getElementById('edit-modal-overlay').classList.add('open');
+    checkEditTotal();
+    document.getElementById('edit-inp-0')?.focus();
+  }
+
+  function closeEditModal(e) {
+    if (e && e.target !== document.getElementById('edit-modal-overlay')) return;
+    document.getElementById('edit-modal-overlay').classList.remove('open');
+    editingRound = null;
+  }
+
+  function checkEditTotal() {
+    let sum = 0; let valid = true;
+    players.forEach((_, i) => {
+      const v = parseInt(document.getElementById(`edit-inp-${i}`)?.value || '0');
+      if (isNaN(v)) valid = false; else sum += v;
+    });
+    const check = document.getElementById('edit-total-check');
+    if (!valid) {
+      check.className = 'total-check bad'; check.textContent = 'Invalid input.';
+    } else if (sum === 26) {
+      check.className = 'total-check ok'; check.textContent = `✓ Total: ${sum} pts (correct)`;
+    } else {
+      check.className = 'total-check bad'; check.textContent = `Total: ${sum} pts — standard round totals 26`;
+    }
+  }
+
+  function saveEditRound() {
+    if (editingRound === null) return;
+    players.forEach((_, i) => {
+      const v = parseInt(document.getElementById(`edit-inp-${i}`)?.value || '0');
+      scores[i][editingRound] = isNaN(v) ? 0 : Math.max(0, v);
+    });
+    document.getElementById('edit-modal-overlay').classList.remove('open');
+    editingRound = null;
+    gameOver = false;
+    document.getElementById('winner-banner').style.display = 'none';
+    document.getElementById('round-entry').style.display = 'block';
+    updateTable(); updateRoundLabel(); saveState();
+  }
+
+  function newGame() {
+    localStorage.removeItem('cabin-hearts');
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('setup').style.display = 'block';
+  }
+
+  function saveState(){
+    try{
+      if(!players.length){localStorage.removeItem('cabin-hearts');return;}
+      localStorage.setItem('cabin-hearts',JSON.stringify({players,scores,limit,playerCount}));
+    }catch(e){}
+  }
+  function loadState(){
+    try{
+      const raw=localStorage.getItem('cabin-hearts');
+      if(!raw)return;
+      const s=JSON.parse(raw);
+      if(!s.players||!s.players.length)return;
+      players=s.players;scores=s.scores||[];limit=s.limit||100;playerCount=s.playerCount||3;
+      gameOver=false;
+      document.getElementById('setup').style.display='none';
+      document.getElementById('game').style.display='block';
+      document.getElementById('winner-banner').style.display='none';
+      buildScoreTable();buildEntryForm();updateTable();
+    }catch(e){}
+  }
+  buildNameInputs();
+  loadState();
+</script>
+</body>
+</html>
