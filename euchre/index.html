@@ -1,25 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Euchre — Cabin Games</title>
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#060d1f">
+<meta name="theme-color" content="#0d1f3c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cabin Games">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;min-height:100vh;}
+  body{background:#0d1f3c;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;min-height:100vh;}
   button:focus{outline:none;}
 
   .screen{display:none;min-height:100vh;}
   .screen.active{display:flex;}
 
   .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
-  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#0d1f3c;}
   .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
   .btn-sm{padding:6px 14px;font-size:12px;}
   .btn-md{padding:9px 20px;font-size:13px;}
@@ -33,7 +33,7 @@
   /* Win button — the main interaction */
   .win-btn{
     width:100%;padding:28px 20px;border:2px solid #1e3a6e;border-radius:16px;
-    background:#0b1630;cursor:pointer;transition:all 0.15s;
+    background:#142a50;cursor:pointer;transition:all 0.15s;
     display:flex;flex-direction:column;align-items:center;gap:8px;
     -webkit-tap-highlight-color:transparent;
   }
@@ -67,18 +67,18 @@
       </div>
     </div>
 
-    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+    <div style="background:#142a50;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
       <span class="label">Team Names</span>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 1</span>
           <input id="t1-name" type="text" value="Team 1" placeholder="Team 1"
-            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+            style="flex:1;background:#192f5a;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;min-width:52px;">TEAM 2</span>
           <input id="t2-name" type="text" value="Team 2" placeholder="Team 2"
-            style="flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
+            style="flex:1;background:#192f5a;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:'Crimson Pro',serif;font-size:17px;">
         </div>
       </div>
 
@@ -100,7 +100,7 @@
 
 <!-- ══════════════ PLAYING ══════════════ -->
 <div id="screen-playing" class="screen" style="flex-direction:column;">
-  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+  <div style="background:#142a50;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="back-btn" onclick="confirmBack()">‹</button>
       <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:18px;font-weight:700;">Euchre</span>
@@ -173,7 +173,7 @@ function setTarget(n) {
   document.querySelectorAll('.target-btn').forEach(b => {
     const active = parseInt(b.dataset.t) === n;
     b.style.background = active ? 'linear-gradient(135deg,#7eb8f7,#a8d0ff)' : 'transparent';
-    b.style.color = active ? '#060d1f' : '#6a90c0';
+    b.style.color = active ? '#0d1f3c' : '#6a90c0';
     b.style.borderColor = active ? '#7eb8f7' : '#1e3a6e';
   });
 }
@@ -246,7 +246,7 @@ function render() {
   if (log.length > 0) {
     strip.style.display = 'block';
     list.innerHTML = log.map((t, i) => `
-      <div style="background:#0e1e3d;border:1px solid #1e3a6e;border-radius:20px;
+      <div style="background:#192f5a;border:1px solid #1e3a6e;border-radius:20px;
         padding:4px 12px;font-family:'Cinzel',serif;font-size:11px;color:#6a90c0;">
         <span style="color:#d6e8ff;">G${i + 1}</span>
         <span style="margin-left:4px;">${teams[t].length > 10 ? teams[t].slice(0, 9) + '…' : teams[t]}</span>
@@ -273,9 +273,9 @@ function renderDone(winnerIdx) {
 
   document.getElementById('done-scores').innerHTML = sorted.map((t, i) => `
     <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
-      background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+      background:${i===0?'rgba(126,184,247,0.12)':'#192f5a'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
       <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-        background:${podiumColors[i]};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${i+1}</div>
+        background:${podiumColors[i]};color:#0d1f3c;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${i+1}</div>
       <div style="flex:1;color:#d6e8ff;font-size:20px;">${t.name}</div>
       <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:26px;font-weight:700;">${t.w}</div>
     </div>`).join('');

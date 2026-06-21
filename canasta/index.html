@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MN Canasta — Cabin Games</title>
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#060d1f">
+<meta name="theme-color" content="#0d1f3c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cabin Games">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#060d1f;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;}
+  body{background:#0d1f3c;font-family:'Crimson Pro',Georgia,serif;color:#d6e8ff;}
   input[type=number]{-moz-appearance:textfield;}
   input[type=number]::-webkit-outer-spin-button,
   input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
@@ -26,7 +26,7 @@
 
   .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:0.4px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.15s;}
   .btn:disabled{opacity:0.45;cursor:not-allowed;}
-  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;}
+  .btn-gold{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#0d1f3c;}
   .btn-blue{background:linear-gradient(135deg,#1a3f8f,#2454b8);color:#d6e8ff;}
   .btn-ghost{background:transparent;color:#6a90c0;border:1px solid #1e3a6e !important;}
   .btn-red{background:#e8445a;color:#fff;}
@@ -35,12 +35,12 @@
   .btn-lg{padding:13px 28px;font-size:16px;}
 
   .tab{flex:1;padding:9px 4px;border:none;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3px;background:transparent;color:#6a90c0;font-weight:400;}
-  .tab.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;font-weight:700;}
+  .tab.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#0d1f3c;font-weight:700;}
   .panel-content{display:none;}
   .panel-content.active{display:block;}
 
   .player-btn{flex:1;min-width:0;height:38px;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;font-size:13px;border:1px solid #1e3a6e;background:transparent;color:#6a90c0;transition:all 0.15s;padding:0 4px;}
-  .player-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#060d1f;border-color:#7eb8f7;}
+  .player-btn.active{background:linear-gradient(135deg,#7eb8f7,#a8d0ff);color:#0d1f3c;border-color:#7eb8f7;}
 
   .back-btn{background:transparent;border:none;color:#6a90c0;font-family:'Cinzel',serif;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.15s;letter-spacing:0.5px;}
   .back-btn:hover{color:#d6e8ff;}
@@ -50,7 +50,7 @@
   .field-row:last-child{border-bottom:none;}
   .field-label{flex:1;color:#d6e8ff;font-size:16px;line-height:1.3;}
   .field-sub{display:block;font-size:12px;color:#6a90c0;margin-top:1px;}
-  .field-input{width:80px;height:46px;text-align:center;font-size:22px;font-weight:700;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;color:#d6e8ff;font-family:'Cinzel',serif;}
+  .field-input{width:80px;height:46px;text-align:center;font-size:22px;font-weight:700;background:#192f5a;border:1px solid #1e3a6e;border-radius:8px;color:#d6e8ff;font-family:'Cinzel',serif;}
   .field-input.negative{border-color:#7a2233;color:#e8445a;}
   .field-input:focus{border-color:#7eb8f7;}
   .field-input.negative:focus{border-color:#e8445a;}
@@ -62,7 +62,7 @@
   .ptab{flex:1;padding:8px 4px;border:none;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2px;background:transparent;color:#6a90c0;font-weight:400;transition:all 0.15s;}
   .ptab.active{background:#1a3f8f;color:#d6e8ff;font-weight:700;}
 
-  .meld-chip{display:inline-flex;align-items:center;gap:5px;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:20px;padding:4px 12px;font-family:'Cinzel',serif;font-size:11px;color:#6a90c0;}
+  .meld-chip{display:inline-flex;align-items:center;gap:5px;background:#192f5a;border:1px solid #1e3a6e;border-radius:20px;padding:4px 12px;font-family:'Cinzel',serif;font-size:11px;color:#6a90c0;}
   .meld-chip.ok{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,0.08);}
 </style>
 </head>
@@ -82,7 +82,7 @@
         <span style="color:#c24040;">♥</span><span style="color:#c24040;">♦</span>
       </div>
     </div>
-    <div style="background:#0b1630;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
+    <div style="background:#142a50;border-radius:16px;border:1px solid #1e3a6e;padding:28px;">
       <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:10px;">PLAYERS / MODE</p>
       <div style="display:flex;gap:6px;margin-bottom:20px;" id="mode-btns">
         <button class="player-btn" data-mode="2" onclick="setMode('2')">2 Players</button>
@@ -99,7 +99,7 @@
 
 <!-- ═══════════════════════ PLAYING ═══════════════════════ -->
 <div id="screen-playing" class="screen" style="flex-direction:column;">
-  <div style="background:#0b1630;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
+  <div style="background:#142a50;border-bottom:1px solid #1e3a6e;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="back-btn" onclick="confirmBack()">‹</button>
       <span style="color:#d6e8ff;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">MN Canasta</span>
@@ -113,12 +113,12 @@
   </div>
 
   <div style="max-width:700px;margin:0 auto;padding:16px;width:100%;">
-    <div style="display:flex;gap:3px;margin-bottom:14px;background:#0b1630;border-radius:10px;padding:4px;border:1px solid #1e3a6e;">
+    <div style="display:flex;gap:3px;margin-bottom:14px;background:#142a50;border-radius:10px;padding:4px;border:1px solid #1e3a6e;">
       <button class="tab active" id="tab-score" onclick="switchTab('score')">Score Round</button>
       <button class="tab" id="tab-standings" onclick="switchTab('standings')">Standings</button>
       <button class="tab" id="tab-history" onclick="switchTab('history')">History</button>
     </div>
-    <div style="background:#0b1630;border-radius:14px;border:1px solid #1e3a6e;padding:20px;">
+    <div style="background:#142a50;border-radius:14px;border:1px solid #1e3a6e;padding:20px;">
       <div id="panel-score" class="panel-content active"></div>
       <div id="panel-standings" class="panel-content"></div>
       <div id="panel-history" class="panel-content"></div>
@@ -154,6 +154,8 @@ let activePTab = 0; // which player tab is shown in round entry
 const WIN_SCORE = 20000;
 
 function fmt(n) { return n.toLocaleString('en-US'); }
+function placesOf(sorted,scoreFn){return sorted.map((item,i)=>{let j=i;while(j>0&&scoreFn(sorted[j])===scoreFn(sorted[j-1]))j--;return j+1;});}
+function ordSfx(n){return n===1?'st':n===2?'nd':n===3?'rd':'th';}
 
 function getMeldReq(score) {
   if (score < 5000) return 50;
@@ -193,7 +195,7 @@ function renderNameInputs() {
     inp.type = 'text';
     inp.value = existing[i] || defaults[i];
     inp.placeholder = defaults[i];
-    inp.style.cssText = 'flex:1;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:Crimson Pro,serif;font-size:17px;';
+    inp.style.cssText = 'flex:1;background:#192f5a;border:1px solid #1e3a6e;border-radius:8px;padding:10px 14px;color:#d6e8ff;font-family:Crimson Pro,serif;font-size:17px;';
     row.appendChild(label);
     row.appendChild(inp);
     el.appendChild(row);
@@ -288,9 +290,9 @@ function renderScorePanel() {
   const newTotal = cs + roundTotal;
 
   el.innerHTML = `
-    <div style="display:flex;gap:3px;background:#060d1f;border-radius:8px;padding:3px;border:1px solid #1e3a6e;margin-bottom:16px;">${ptabs}</div>
+    <div style="display:flex;gap:3px;background:#0d1f3c;border-radius:8px;padding:3px;border:1px solid #1e3a6e;margin-bottom:16px;">${ptabs}</div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0e1e3d;border:1px solid #1e3a6e;border-radius:10px;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#192f5a;border:1px solid #1e3a6e;border-radius:10px;margin-bottom:14px;">
       <div>
         <div style="color:#6a90c0;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;">CURRENT SCORE</div>
         <div style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(cs)}</div>
@@ -440,23 +442,25 @@ function renderStandings() {
   const sorted = [...players].sort((a,b) => cumScores[b.id] - cumScores[a.id]);
   const leader = sorted[0];
 
+  const pls = placesOf(sorted, p => -cumScores[p.id]);
   el.innerHTML = `
     <p style="color:#6a90c0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;margin-bottom:12px;">
       STANDINGS <span style="opacity:0.6;">· first to ${fmt(WIN_SCORE)} wins</span>
     </p>
     ${sorted.map((p,i) => {
+      const place = pls[i];
       const score = cumScores[p.id];
       const meld = getMeldReq(score);
       const pct = Math.min(100, Math.round(score / WIN_SCORE * 100));
       return `
         <div style="padding:14px 16px;margin-bottom:8px;border-radius:12px;
-          background:${i===0?'rgba(126,184,247,0.1)':'#0e1e3d'};border:1px solid ${i===0?'#7eb8f7':'#1e3a6e'};">
+          background:${place===1?'rgba(126,184,247,0.1)':'#192f5a'};border:1px solid ${place===1?'#7eb8f7':'#1e3a6e'};">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
             <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-              background:${i===0?'linear-gradient(135deg,#7eb8f7,#a8d0ff)':'#1e3a6e'};
-              color:${i===0?'#060d1f':'#6a90c0'};font-family:'Cinzel',serif;font-weight:900;font-size:13px;">${i+1}</div>
+              background:${place===1?'linear-gradient(135deg,#7eb8f7,#a8d0ff)':'#1e3a6e'};
+              color:${place===1?'#0d1f3c':'#6a90c0'};font-family:'Cinzel',serif;font-weight:900;font-size:13px;">${place}</div>
             <div style="flex:1;color:#d6e8ff;font-size:19px;">${p.name}</div>
-            <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(score)}</div>
+            <div style="color:${place===1?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:22px;font-weight:700;">${fmt(score)}</div>
           </div>
           <div style="height:4px;background:#1e3a6e;border-radius:2px;margin-bottom:6px;">
             <div style="height:100%;width:${pct}%;background:${i===0?'linear-gradient(90deg,#7eb8f7,#a8d0ff)':'#2a5a8f'};border-radius:2px;transition:width 0.4s;"></div>
@@ -517,17 +521,21 @@ function renderDoneScreen() {
   const sorted = [...players].sort((a,b) => cumScores[b.id]-cumScores[a.id]);
   const podiumColors = ['linear-gradient(135deg,#7eb8f7,#a8d0ff)','#4a7ab5','#2a5a8f'];
   const borderColors = ['#7eb8f7','#4a7ab5','#2a5a8f','#1e3a6e'];
-  document.getElementById('done-standings').innerHTML = sorted.map((p,i) => `
+  const donePls = placesOf(sorted, p => -cumScores[p.id]);
+  document.getElementById('done-standings').innerHTML = sorted.map((p,i) => {
+    const place = donePls[i];
+    return `
     <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:8px;border-radius:12px;
-      background:${i===0?'rgba(126,184,247,0.12)':'#0e1e3d'};border:1px solid ${borderColors[Math.min(i,3)]};">
+      background:${place===1?'rgba(126,184,247,0.12)':'#192f5a'};border:1px solid ${borderColors[Math.min(place-1,3)]};">
       <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-        background:${podiumColors[i]||'#1e3a6e'};color:#060d1f;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${i+1}</div>
+        background:${podiumColors[place-1]||'#1e3a6e'};color:#0d1f3c;font-family:'Cinzel',serif;font-weight:900;font-size:15px;">${place}</div>
       <div style="flex:1;">
         <div style="color:#d6e8ff;font-size:20px;">${p.name}</div>
         <div style="color:#6a90c0;font-size:13px;">${rounds.length} rounds played</div>
       </div>
-      <div style="color:${i===0?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:24px;font-weight:700;">${fmt(cumScores[p.id])}</div>
-    </div>`).join('');
+      <div style="color:${place===1?'#7eb8f7':'#d6e8ff'};font-family:'Cinzel',serif;font-size:24px;font-weight:700;">${fmt(cumScores[p.id])}</div>
+    </div>`;
+  }).join('');
 }
 
 // ─── Speech ──────────────────────────────────────────────────
@@ -535,10 +543,11 @@ function readScores() {
   window.speechSynthesis.cancel();
   const sorted = [...players].sort((a,b) => cumScores[b.id]-cumScores[a.id]);
   const lines = ['Current standings.'];
-  sorted.slice().reverse().forEach((p,i) => {
-    const pos = sorted.length-i;
-    const suffix = pos===1?'st':pos===2?'nd':pos===3?'rd':'th';
-    lines.push(`In ${pos}${suffix} place, ${p.name}, with ${fmt(cumScores[p.id])} points.`);
+  const sPls = placesOf(sorted, p => -cumScores[p.id]);
+  sorted.forEach((p,i) => {
+    const place = sPls[i];
+    const tied = sPls.filter(x=>x===place).length>1;
+    lines.push(`${tied?`Tied for ${place}${ordSfx(place)} place`:`In ${place}${ordSfx(place)} place`}, ${p.name}, with ${fmt(cumScores[p.id])} points.`);
   });
   lines.push('Meld requirements for next round.');
   sorted.forEach(p => {
