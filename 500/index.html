@@ -224,13 +224,16 @@ function calcHandResult(h) {
   const bidVal = calcBidValue(h.bidType, h.bidTricks, h.bidSuit);
   const nonBidTeam = 1 - h.biddingTeam;
   const nonBidderTricks = 10 - h.tricksTaken;
-  const nonBidScore = nonBidderTricks * 10;
+  let nonBidScore = nonBidderTricks * 10;
 
   let bidScore;
   if (h.bidType === 'noula' || h.bidType === 'open-noula') {
     bidScore = h.tricksTaken === 0 ? bidVal : -bidVal;
   } else {
     bidScore = h.tricksTaken >= h.bidTricks ? bidVal : -bidVal;
+    // All-tricks bonus: winning all 10 tricks scores 250 (replaces normal score)
+    if (h.tricksTaken === 10) bidScore = 250;
+    if (nonBidderTricks === 10) nonBidScore = 250;
   }
 
   const result = {};
@@ -319,6 +322,7 @@ function renderScore() {
         <span style="color:#7eb8f7;font-family:'Cinzel',serif;font-size:17px;font-weight:700;">
           ${H.bidTricks} ${SUIT_LABEL[H.bidSuit]} = ${bidVal} pts
         </span>
+        ${H.tricksTaken === 10 ? `<div style="color:#4ade80;font-family:'Cinzel',serif;font-size:12px;margin-top:4px;letter-spacing:0.5px;">★ All-tricks bonus applies — 250 pts</div>` : ''}
       </div>
     ` : `
       <div style="padding:8px 0 16px;text-align:center;">
@@ -344,9 +348,10 @@ function renderScore() {
         const newTotal = teams[i].score + delta;
         const isBidder = i === H.biddingTeam;
         const made = madeHand(H);
+        const allTricks = H.bidType === 'regular' && (isBidder ? H.tricksTaken === 10 : H.tricksTaken === 0);
         const statusLabel = isBidder
-          ? (made ? '✓ made' : '✗ down')
-          : `${10 - H.tricksTaken} tricks`;
+          ? (allTricks ? '★ all 10 tricks' : made ? '✓ made' : '✗ down')
+          : (allTricks ? '★ all 10 tricks' : `${10 - H.tricksTaken} tricks`);
         return `
           <div class="preview-row" style="background:${isBidder?'rgba(126,184,247,0.05)':'transparent'}">
             <div>
